@@ -1,0 +1,152 @@
+:root {
+  --terracotta: #c1613c;
+  --terracotta-dark: #9e4a2c;
+  --cream: #f6efe6;
+  --clay: #e8d8c4;
+  --ink: #3a2e26;
+  --muted: #7b6a5c;
+  --card-bg: #fffdf9;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  padding: 40px 24px 64px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(193, 97, 60, 0.16), transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(232, 216, 196, 0.55), transparent 45%),
+    var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 1120px; margin: 0 auto; }
+
+.page__head { max-width: 620px; margin: 0 auto 40px; text-align: center; }
+
+.page__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+
+.page__title { margin-top: 10px; font-size: 34px; letter-spacing: -0.6px; }
+
+.page__lead { margin-top: 14px; font-size: 15px; line-height: 1.6; color: var(--muted); }
+
+.grid {
+  display: grid;
+  gap: 24px;
+  list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--card-bg);
+  border-radius: 22px;
+  box-shadow: 0 16px 38px -22px rgba(58, 46, 38, 0.55);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 24px 46px -22px rgba(58, 46, 38, 0.6); }
+.card--sold-out .card__media img { filter: grayscale(0.7); opacity: 0.6; }
+
+.card__media { position: relative; aspect-ratio: 4 / 3; background: var(--clay); }
+.card__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.badge--in_stock { background: #e6f0e4; color: #3f6b38; }
+.badge--low_stock { background: #fbecd8; color: #8a5a15; }
+.badge--out_of_stock { background: #ecdedd; color: #8c3f36; }
+
+.card__body { display: flex; flex-direction: column; flex: 1; gap: 10px; padding: 20px; }
+
+.card__name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+.card__desc { font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.tags li {
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--cream);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.specs { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.specs__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--cream);
+  font-size: 12.5px;
+}
+.specs__row dt { color: var(--muted); }
+.specs__row dd { font-weight: 600; text-align: right; }
+
+.card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.price { font-size: 19px; font-weight: 700; }
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 12px 22px -12px rgba(158, 74, 44, 0.9); }
+.btn:active { transform: translateY(0); }
+
+.btn--ghost {
+  color: var(--terracotta-dark);
+  background: var(--cream);
+  box-shadow: inset 0 0 0 1.5px var(--clay);
+}
+.btn--ghost:hover { background: var(--clay); box-shadow: inset 0 0 0 1.5px var(--terracotta); }
+
+.card__restock { font-size: 12px; color: var(--muted); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  padding: 13px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 18px 34px -18px rgba(58, 46, 38, 0.9);
+}

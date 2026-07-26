@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elif Yılmaz — AtölyeKart Dijital Kartvizit</title>
+  <style>
+    :root {
+      --terracotta: #c1613c;
+      --terracotta-dark: #9e4a2c;
+      --cream: #f6efe6;
+      --clay: #e8d8c4;
+      --ink: #3a2e26;
+      --muted: #7b6a5c;
+      --card-bg: #fffdf9;
+      --shadow: 0 20px 50px -18px rgba(58, 46, 38, 0.45);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(193, 97, 60, 0.18), transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(232, 216, 196, 0.6), transparent 50%),
+        var(--cream);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .banner {
+      height: 118px;
+      background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0 10px, transparent 10px 20px);
+    }
+
+    .avatar {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: var(--clay);
+      border: 5px solid var(--card-bg);
+      position: absolute;
+      left: 50%;
+      top: 66px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--terracotta-dark);
+      box-shadow: 0 8px 20px -8px rgba(58,46,38,0.5);
+    }
+
+    .content {
+      padding: 66px 28px 30px;
+      text-align: center;
+    }
+
+    .name { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+
+    .role {
+      margin-top: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--terracotta);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .tagline {
+      margin: 14px auto 0;
+      max-width: 300px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--clay);
+      margin: 24px 4px;
+    }
+
+    .details { display: flex; flex-direction: column; gap: 6px; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 12px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: background 0.18s ease, transform 0.18s ease;
+      text-align: left;
+    }
+    .row:hover { background: var(--cream); transform: translateX(2px); }
+
+    .ic {
+      flex: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--clay);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--terracotta-dark);
+    }
+    .ic svg { width: 19px; height: 19px; }
+
+    .row .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    .row .value { font-size: 14.5px; font-weight: 600; }
+
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .social {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--terracotta-dark);
+      text-decoration: none;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+    .social:hover { background: var(--terracotta); color: #fff; transform: translateY(-3px); }
+    .social svg { width: 20px; height: 20px; }
+
+    .save-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 12px 24px -12px rgba(158, 74, 44, 0.8);
+    }
+    .save-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -12px rgba(158, 74, 44, 0.9); }
+    .save-btn:active { transform: translateY(0); }
+    .save-btn svg { width: 18px; height: 18px; }
+
+    .foot {
+      margin-top: 18px;
+      font-size: 11.5px;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="banner"></div>
+    <div class="avatar">EY</div>
+
+    <div class="content">
+      <h1 class="name">Elif Yılmaz</h1>
+      <p class="role">Seramik Eğitmeni · Atölye Kurucusu</p>
+      <p class="tagline">El yapımı seramik atölyeleri ve birebir dersler. Çamurla tanışın, kendi eserinizi yaratın.</p>
+
+      <div class="divider"></div>
+
+      <div class="details">
+        <a class="row" href="tel:+905551234567">
+          <span class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+          <span>
+            <div class="label">Telefon</div>
+            <div class="value">+90 555 123 45 67</div>
+          </span>
+        </a>
+
+        <a class="row" href="mailto:elif@atolyekart.com">
+          <span class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          </span>
+          <span>
+            <div class="label">E-posta</div>
+            <div class="value">elif@atolyekart.com</div>
+          </span>
+        </a>
+
+        <a class="row" href="https://www.atolyekart.com" target="_blank" rel="noopener">
+          <span class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <span>
+            <div class="label">Web</div>
+            <div class="value">www.atolyekart.com</div>
+          </span>
+        </a>
+
+        <a class="row" href="https://maps.google.com/?q=Kadıköy,İstanbul" target="_blank" rel="noopener">
+          <span class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span>
+            <div class="label">Konum</div>
+            <div class="value">Kadıköy, İstanbul</div>
+          </span>
+        </a>
+      </div>
+
+      <div class="socials">
+        <a class="social" href="https://instagram.com/atolyekart" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a class="social" href="https://wa.me/905551234567" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.16c-.24.68-1.4 1.31-1.94 1.36-.5.05-.97.24-3.26-.68-2.76-1.09-4.5-3.92-4.64-4.11-.14-.19-1.11-1.48-1.11-2.82s.7-2 .95-2.28c.24-.27.53-.34.71-.34.18 0 .35 0 .5.01.16 0 .38-.06.6.46.24.55.79 1.9.86 2.04.07.14.11.3.02.48-.09.19-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.27.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.21 1.37.27.14.43.11.59-.07.16-.19.68-.79.86-1.06.18-.27.36-.23.6-.14.24.09 1.55.73 1.81.86.27.14.44.2.5.31.07.12.07.66-.17 1.34z"/></svg>
+        </a>
+      </div>
+
+      <button class="save-btn" id="saveVcard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Rehbere Kaydet
+      </button>
+
+      <p class="foot">AtölyeKart · Dijital Kartvizit</p>
+    </div>
+  </main>
+
+  <script>
+    // vCard download — contact saves directly to the phone/address book
+    document.getElementById('saveVcard').addEventListener('click', function () {
+      const vcard = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        'N:Yılmaz;Elif;;;',
+        'FN:Elif Yılmaz',
+        'ORG:AtölyeKart',
+        'TITLE:Seramik Eğitmeni / Atölye Kurucusu',
+        'TEL;TYPE=CELL:+905551234567',
+        'EMAIL;TYPE=INTERNET:elif@atolyekart.com',
+        'URL:https://www.atolyekart.com',
+        'ADR;TYPE=WORK:;;Kadıköy;İstanbul;;;Türkiye',
+        'END:VCARD'
+      ].join('\r\n');
+
+      const blob = new Blob([vcard], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ElifYilmaz.vcf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
