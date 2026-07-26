@@ -1,49 +1,254 @@
+/* ==========================================================================
+   AtölyeKart — visual foundation
+   Palette: brushed silver + light blue. Cool, calm, high contrast.
+   ========================================================================== */
+
 :root {
-  --terracotta: #c1613c;
-  --terracotta-dark: #9e4a2c;
-  --cream: #f6efe6;
-  --clay: #e8d8c4;
-  --ink: #3a2e26;
-  --muted: #7b6a5c;
-  --card-bg: #fffdf9;
+  /* --- Palette -------------------------------------------------------- */
+  --azure: #3f83ab;         /* brand hue — large text / decorative only */
+  --azure-dark: #2f6b8f;    /* accent text, 5.2:1 on --mist */
+  --azure-deep: #245876;    /* gradient end, pressed states */
+
+  --mist: #eef2f6;          /* page ground — palest blue */
+  --silver-light: #e8edf2;  /* chips, inset surfaces */
+  --silver: #c7d0d8;        /* mid metal */
+  --silver-dark: #a9b6c2;   /* metal edge */
+
+  --ink: #25313d;           /* deep slate — 12.9:1 on --card-bg */
+  --muted: #54626f;         /* body-copy grey — 6.1:1 on --card-bg */
+  --muted-soft: #6b7885;
+  --card-bg: #fbfcfd;
+
+  --line: #dfe6ec;          /* hairline on card background */
+  --line-strong: #c3ced9;
+
+  /* Brushed-metal sheen. CSS cannot be truly metallic, so the illusion is
+     carried by an off-axis multi-stop ramp reused across surfaces. */
+  --metal: linear-gradient(
+    135deg,
+    #f4f7fa 0%, #d3dce4 20%, #f0f4f8 40%,
+    #b9c6d2 60%, #e4ebf1 80%, #c5d1dc 100%
+  );
+  --metal-soft: linear-gradient(135deg, #f7f9fb 0%, #e2e9ef 45%, #cfd9e2 100%);
+
+  /* Status hues — muted, all >= 5.8:1 against their own chip background */
+  --ok-bg: #dfeee6;    --ok-ink: #2a6047;
+  --warn-bg: #fbeed6;  --warn-ink: #7d5310;
+  --gone-bg: #f0dedd;  --gone-ink: #8a3a33;
+
+  /* Compatibility aliases. OrderModal.css is owned elsewhere and still calls
+     the warm names; these keep that modal on-palette. Deliberately NOT mapped
+     to --azure: that file paints white text on var(--terracotta), which at
+     #3f83ab would sit at 4.16:1. #3a789d is the same hue at 4.8:1.
+     Delete this block once OrderModal.css moves to the cool palette. */
+  --terracotta: #3a789d;
+  --terracotta-dark: var(--azure-deep);
+  --terracotta-deep: var(--azure-deep);
+  --cream: var(--silver-light);
+  --clay: var(--silver);
+
+  /* --- Type ----------------------------------------------------------- */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  /* System serif only — nothing is fetched. Gives the catalog a printed,
+     hand-set feel without a webfont request. */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino,
+    "Book Antiqua", Georgia, "Times New Roman", serif;
+  /* Wordmark: geometric, modern, clean Turkish diacritics. All system-resident
+     — Avenir Next on macOS, Century Gothic / Segoe UI on Windows. */
+  --font-brand: "Avenir Next", Avenir, "Century Gothic", Futura, "Segoe UI",
+    system-ui, sans-serif;
+
+  --text-2xs: 0.6875rem;  /* 11px  — tags, badge */
+  --text-xs: 0.75rem;     /* 12px  — restock note */
+  --text-sm: 0.8125rem;   /* 13px  — specs */
+  --text-base: 0.875rem;  /* 14px  — card copy, buttons */
+  --text-md: 1rem;        /* 16px  — page lead */
+  --text-lg: 1.1875rem;   /* 19px  — product name */
+  --text-xl: 1.3125rem;   /* 21px  — price */
+
+  /* --- Rhythm --------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-card: 20px;
+  --radius-control: 12px;
+
+  --shadow-rest: 0 2px 4px -2px rgba(37, 49, 61, 0.13),
+    0 18px 40px -26px rgba(37, 49, 61, 0.55);
+  --shadow-lift: 0 4px 8px -4px rgba(37, 49, 61, 0.18),
+    0 28px 52px -26px rgba(37, 49, 61, 0.55);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html { -webkit-text-size-adjust: 100%; }
+
 body {
   min-height: 100vh;
-  padding: 40px 24px 64px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: clamp(28px, 5vw, 64px) clamp(16px, 4vw, 32px) clamp(56px, 9vw, 104px);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  /* Kerning + real ligatures make the Turkish diacritics sit better. */
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-kerning: normal;
   background:
-    radial-gradient(circle at 15% 10%, rgba(193, 97, 60, 0.16), transparent 50%),
-    radial-gradient(circle at 85% 70%, rgba(232, 216, 196, 0.55), transparent 45%),
-    var(--cream);
+    radial-gradient(circle at 15% 8%, rgba(63, 131, 171, 0.16), transparent 46%),
+    radial-gradient(circle at 88% 72%, rgba(169, 182, 194, 0.5), transparent 42%),
+    var(--mist);
+  background-attachment: fixed;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.page { max-width: 1120px; margin: 0 auto; }
+/* Sized for the 4-up grid: 4 × ~296px + gaps, which is the width the card
+   internals were tuned against. */
+.page { position: relative; max-width: 1260px; margin: 0 auto; }
 
-.page__head { max-width: 620px; margin: 0 auto 40px; text-align: center; }
+/* --------------------------------------------------------------------------
+   QR card
+   The SVG is drawn transparent on --card-bg, so it needs a generous light
+   quiet-zone on all four sides to stay scannable.
+   -------------------------------------------------------------------------- */
 
-.page__eyebrow {
-  font-size: 12px;
+.page__qr {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 16px 16px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-rest), inset 0 1px 0 #fff;
+}
+
+/* 64px in the component → 96px here (+50%). The SVG carries a viewBox, so this
+   is a lossless upscale; crispEdges stops the module grid from being softened
+   by anti-aliasing at the non-integer module size (96 / 25 = 3.84px). */
+.page__qr svg {
+  display: block;
+  width: 96px;
+  height: 96px;
+  shape-rendering: crispEdges;
+}
+
+.page__qr span {
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--terracotta);
+  line-height: 1;
+  color: var(--muted-soft);
 }
 
-.page__title { margin-top: 10px; font-size: 34px; letter-spacing: -0.6px; }
+/* Below this width the QR would collide with the heading — and a phone is
+   already on the page it points to. */
+@media (max-width: 900px) {
+  .page__qr { display: none; }
+}
 
-.page__lead { margin-top: 14px; font-size: 15px; line-height: 1.6; color: var(--muted); }
+/* --------------------------------------------------------------------------
+   Masthead
+   -------------------------------------------------------------------------- */
 
+.page__head {
+  max-width: 34rem;
+  margin: 0 auto clamp(40px, 6vw, 64px);
+  text-align: center;
+}
+
+/* The wordmark, not a label: real logo size, natural camel-case rather than
+   letterspaced caps. The sheen is clipped to the glyphs, and every stop sits
+   between #2a6285 and #4b86a8 so even the lightest pixel clears 3.5:1 —
+   above the 3.0 threshold that applies at this size. */
+.page__eyebrow {
+  font-family: var(--font-brand);
+  font-size: clamp(1.875rem, 1.3rem + 2.4vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  text-transform: none;
+  line-height: 1.08;
+  color: var(--azure-dark);
+  background: linear-gradient(
+    100deg,
+    #2a6285 0%, #4b86a8 26%, #2f6b8f 50%, #4b86a8 76%, #2a6285 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Steps down so the lockup reads mark → headline rather than two competing
+   titles. Keeps the serif: the craft voice lives here and on the cards. */
+.page__title {
+  margin-top: var(--space-2);
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 1.1rem + 1.15vw, 1.8rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.page__lead {
+  margin-top: var(--space-3);
+  font-size: var(--text-md);
+  line-height: 1.65;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* Thin polished rule to close the masthead. */
+.page__head::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 2px;
+  margin: var(--space-5) auto 0;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--silver-dark) 22%,
+    var(--azure) 50%,
+    var(--silver-dark) 78%,
+    transparent
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Grid
+   -------------------------------------------------------------------------- */
+
+/* Four across, so the eight-product catalog lands as an even 4 + 4. Fixed
+   track counts rather than auto-fill: the row length is the brief, not a
+   consequence of the viewport. Steps down before cards get too narrow to read. */
 .grid {
   display: grid;
-  gap: 24px;
+  gap: clamp(16px, 1.8vw, 26px);
   list-style: none;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
+
+@media (max-width: 1080px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 820px)  { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* --------------------------------------------------------------------------
+   Card
+   -------------------------------------------------------------------------- */
 
 .card {
   display: flex;
@@ -51,102 +256,285 @@ body {
   height: 100%;
   overflow: hidden;
   background: var(--card-bg);
-  border-radius: 22px;
-  box-shadow: 0 16px 38px -22px rgba(58, 46, 38, 0.55);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  /* Inset top highlight reads as light catching a polished edge. */
+  box-shadow: var(--shadow-rest), inset 0 1px 0 #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.card:hover { transform: translateY(-3px); box-shadow: 0 24px 46px -22px rgba(58, 46, 38, 0.6); }
-.card--sold-out .card__media img { filter: grayscale(0.7); opacity: 0.6; }
 
-.card__media { position: relative; aspect-ratio: 4 / 3; background: var(--clay); }
-.card__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift), inset 0 1px 0 #fff;
+}
+
+/* Sold out: recede, never blur the words. Copy keeps full contrast. */
+.card--sold-out {
+  background: linear-gradient(var(--card-bg), #f2f6f9);
+  box-shadow: 0 2px 4px -2px rgba(37, 49, 61, 0.09),
+    0 14px 30px -26px rgba(37, 49, 61, 0.45);
+}
+.card--sold-out:hover { transform: translateY(-1px); }
+
+/* Media only — the badge is a sibling inside .card__media and must stay crisp. */
+.card--sold-out .card__media > :not(.badge) {
+  filter: grayscale(0.65);
+  opacity: 0.55;
+}
+
+.card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--metal-soft);
+  box-shadow: inset 0 -1px 0 rgba(37, 49, 61, 0.09);
+}
+
+.card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   Stock badge
+   Hue does the talking; the ring keeps it legible over any photo underneath.
+   -------------------------------------------------------------------------- */
 
 .badge {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 5px 11px;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: 5px 11px 6px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: var(--text-2xs);
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  box-shadow: 0 1px 2px rgba(37, 49, 61, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.9);
 }
-.badge--in_stock { background: #e6f0e4; color: #3f6b38; }
-.badge--low_stock { background: #fbecd8; color: #8a5a15; }
-.badge--out_of_stock { background: #ecdedd; color: #8c3f36; }
 
-.card__body { display: flex; flex-direction: column; flex: 1; gap: 10px; padding: 20px; }
+.badge--in_stock { background: var(--ok-bg); color: var(--ok-ink); }
+.badge--low_stock { background: var(--warn-bg); color: var(--warn-ink); }
+.badge--out_of_stock { background: var(--gone-bg); color: var(--gone-ink); }
 
-.card__name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
-.card__desc { font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+/* --------------------------------------------------------------------------
+   Card body — explicit rhythm instead of one flat gap
+   -------------------------------------------------------------------------- */
 
-.tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0;
+  padding: 20px 18px 18px;
+}
+
+.card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+.card__desc {
+  margin-top: var(--space-2);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-4);
+  list-style: none;
+}
+
 .tags li {
-  padding: 4px 9px;
-  border-radius: 8px;
-  background: var(--cream);
-  font-size: 11.5px;
+  padding: 4px 10px 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--silver-light);
+  font-size: var(--text-2xs);
+  line-height: 1.35;
   color: var(--muted);
 }
 
-.specs { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.specs {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-5);
+}
+
 .specs__row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--cream);
-  font-size: 12.5px;
+  gap: var(--space-4);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+  line-height: 1.4;
 }
-.specs__row dt { color: var(--muted); }
-.specs__row dd { font-weight: 600; text-align: right; }
+.specs__row:first-child { padding-top: 0; }
+.specs__row:last-child { border-bottom: 0; }
 
+.specs__row dt {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.specs__row dd {
+  font-weight: 600;
+  text-align: right;
+  color: var(--ink);
+  /* Lining tabular figures keep the right-hand column optically aligned. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Price + action
+   -------------------------------------------------------------------------- */
+
+/* Wraps instead of squeezing: in a 5-up track the price and a long label like
+   "Stok Bildirimi İste" cannot share a line, so the button drops below. */
 .card__foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: var(--space-4);
 }
 
-.price { font-size: 19px; font-weight: 700; }
+.card__foot .btn { flex: 1 1 auto; }
+
+.price {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums lining-nums;
+}
 
 .btn {
-  padding: 10px 16px;
+  padding: 11px 17px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   cursor: pointer;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: var(--text-base);
   font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
   color: #fff;
-  background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  /* Light end held at #3a789d so white text clears AA (4.8:1). */
+  background: linear-gradient(135deg, #3a789d, var(--azure-deep));
+  box-shadow: 0 1px 2px rgba(20, 50, 70, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
-.btn:hover { transform: translateY(-1px); box-shadow: 0 12px 22px -12px rgba(158, 74, 44, 0.9); }
-.btn:active { transform: translateY(0); }
 
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+  box-shadow: 0 12px 22px -12px rgba(36, 88, 118, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.btn:active { transform: translateY(0); filter: brightness(0.97); }
+
+.btn:focus-visible,
+.toast:focus-visible {
+  outline: 2px solid var(--azure-dark);
+  outline-offset: 2px;
+}
+
+/* Brushed silver secondary action. */
 .btn--ghost {
-  color: var(--terracotta-dark);
-  background: var(--cream);
-  box-shadow: inset 0 0 0 1.5px var(--clay);
+  color: var(--azure-deep);
+  background: var(--metal-soft);
+  box-shadow: inset 0 0 0 1.5px var(--silver-dark),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
-.btn--ghost:hover { background: var(--clay); box-shadow: inset 0 0 0 1.5px var(--terracotta); }
+.btn--ghost:hover {
+  filter: none;
+  background: var(--metal);
+  box-shadow: inset 0 0 0 1.5px var(--azure),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
 
-.card__restock { font-size: 12px; color: var(--muted); }
+/* Settled state — the request is already recorded. Inert, but still readable:
+   a greyed-out dead end would look like a bug rather than a confirmation. */
+.btn:disabled,
+.btn:disabled:hover {
+  cursor: default;
+  transform: none;
+  filter: none;
+  color: var(--muted);
+  background: var(--silver-light);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+
+.btn:disabled::before {
+  content: "✓";
+  margin-right: 6px;
+  font-weight: 700;
+  color: var(--ok-ink);
+}
+
+.card__restock {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line-strong);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------------------
+   Toast
+   -------------------------------------------------------------------------- */
 
 .toast {
   position: fixed;
   left: 50%;
   bottom: 28px;
+  max-width: min(92vw, 30rem);
   transform: translateX(-50%);
   padding: 13px 22px;
   border-radius: 999px;
   cursor: pointer;
   background: var(--ink);
-  color: var(--cream);
-  font-size: 13.5px;
+  color: #eef4f8;
+  font-size: var(--text-base);
   font-weight: 600;
-  box-shadow: 0 18px 34px -18px rgba(58, 46, 38, 0.9);
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 18px 34px -18px rgba(37, 49, 61, 0.9);
+}
+
+/* --------------------------------------------------------------------------
+   Narrow screens
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .grid { grid-template-columns: 1fr; }
+  .card__body { padding: 20px 18px 18px; }
+  .card__foot { padding-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  .card:hover, .btn:hover { transform: none; }
 }

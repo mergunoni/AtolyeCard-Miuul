@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { products } from "./data/products.js";
 import ProductList from "./components/ProductList.jsx";
+import PageQrCode from "./components/PageQrCode.jsx";
 
 export default function App() {
   const [notice, setNotice] = useState("");
@@ -13,6 +14,8 @@ export default function App() {
 
   return (
     <div className="page">
+      <PageQrCode />
+
       <header className="page__head">
         <p className="page__eyebrow">AtölyeKart</p>
         <h1 className="page__title">El Yapımı Ürünler</h1>

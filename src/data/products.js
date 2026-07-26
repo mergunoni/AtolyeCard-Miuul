@@ -1,6 +1,9 @@
 /**
  * Demo product catalog. Replace with API/CMS source before production.
  *
+ * Images are the workshop's own photographs, resized to 900px JPEG for the web.
+ * Full-resolution originals live in /assets-source/products (not shipped).
+ *
  * @typedef {"in_stock" | "low_stock" | "out_of_stock"} StockStatus
  *
  * @typedef {Object} Product
@@ -28,7 +31,7 @@ export const products = [
     currency: "TRY",
     image: "/images/products/toprak-seramik-kupa.jpg",
     description:
-      "Çarkta elde şekillendirilmiş, mat toprak tonlu günlük kupa. Her parça kendi el izini taşır.",
+      "Çarkta çekilen gövde ağza doğru hafifçe incelir, kulp parmağa rahat oturur. Mat yüzeyde çark halkaları ve ustanın parmak izi belli belirsiz seçilir.",
     stock: { status: "in_stock", quantity: 24 },
     specs: {
       material: "Stoneware kil",
@@ -53,7 +56,7 @@ export const products = [
     currency: "TRY",
     image: "/images/products/sirsiz-seramik-saksi.jpg",
     description:
-      "Nefes alan sırsız gövdesiyle sukulent ve kaktüsler için ideal, tabaklı saksı.",
+      "Kırmızı kil sırlanmadan bırakıldığı için topraktaki fazla su gövdeden buharlaşır. Zamanla dış yüzeyde açık renkli mineral izleri belirir, saksı kendi patinasını edinir.",
     stock: { status: "out_of_stock", quantity: 0, restockAt: "2026-08-15" },
     specs: {
       material: "Kırmızı çömlek kili",
@@ -78,7 +81,7 @@ export const products = [
     currency: "TRY",
     image: "/images/products/soya-mumu-incir-sedir.jpg",
     description:
-      "Olgun incir ve sedir ağacı notalarıyla harmanlanmış, seramik kapta dökülmüş soya mumu.",
+      "Yeşil incir kabuğunun sütlü serinliği, altta ısınan sedir odunuyla dengeleniyor. Yakınca ağır durmuyor; geç yaz akşamlarında açık pencereden gelen bahçe kokusuna benziyor.",
     stock: { status: "in_stock", quantity: 41 },
     specs: {
       material: "%100 soya mumu",
@@ -94,31 +97,8 @@ export const products = [
       "El ile küçük partiler hâlinde dökülür",
     ],
   },
-  {
-    id: "prd-007",
-    slug: "kavanoz-mum-portakal-cicegi",
-    name: 'Kavanoz Mum "Portakal Çiçeği"',
-    category: "mum",
-    price: 390,
-    currency: "TRY",
-    image: "/images/products/kavanoz-mum-portakal-cicegi.jpg",
-    description:
-      "Amber cam kavanozda, portakal çiçeği ve bergamot esansıyla hazırlanmış çift fitilli mum.",
-    stock: { status: "low_stock", quantity: 4 },
-    specs: {
-      material: "Soya + hindistan cevizi mumu",
-      dimensions: "Ø 9 × 10 cm",
-      weight: "260 g",
-      burnTime: "~45 saat",
-      wick: "Çift pamuk fitil",
-      care: "İlk yakışta 2 saat açık bırakın",
-    },
-    features: [
-      "Çift fitil ile eşit erime",
-      "Kapaklı amber cam kavanoz",
-      "Fitil makası hediyeli",
-    ],
-  },
+  /* prd-007 "Kavanoz Mum (Portakal Çiçeği)" withdrawn from the catalog.
+     The id is retired, never reassigned — see the schema note above. */
   {
     id: "prd-008",
     slug: "gumus-kaplama-yaprak-kolye",
@@ -128,7 +108,7 @@ export const products = [
     currency: "TRY",
     image: "/images/products/gumus-kaplama-yaprak-kolye.jpg",
     description:
-      "Gerçek zeytin yaprağının kalıbı alınarak dökülen, 925 ayar gümüş kaplama kolye ucu ve zinciri.",
+      "Bahçeden toplanan zeytin yaprağı kalıba gömülür; metal döküldüğünde yaprağın damarları ve kenarındaki küçük yırtık da yüzeye geçer. Bu yüzden hiçbir uç diğerinin aynısı olmaz.",
     stock: { status: "in_stock", quantity: 11 },
     specs: {
       material: "925 ayar gümüş kaplama pirinç",
@@ -153,7 +133,7 @@ export const products = [
     currency: "TRY",
     image: "/images/products/el-dovme-pirinc-kupe.jpg",
     description:
-      "Çekiçle dövülerek dokusu oluşturulan, hafif ve büyük hacimli pirinç küpe. Kancaları gümüştür.",
+      "Pirinç levha soğukken çekiçlenir, her vuruş yüzeyde küçük bir çukur bırakır ve ışık bu çukurlardan dağınık yansır. Hacimli görünür ama kulakta ağırlığını hissettirmez.",
     stock: { status: "out_of_stock", quantity: 0, restockAt: "2026-09-01" },
     specs: {
       material: "Pirinç gövde, 925 ayar gümüş kanca",
@@ -167,6 +147,81 @@ export const products = [
       "Her çift elde dövülür",
       "Gümüş kanca ile alerji riski düşük",
       "Hafif yapı, gün boyu konfor",
+    ],
+  },
+  {
+    id: "prd-011",
+    slug: "kul-sirli-servis-tabagi",
+    name: "Kül Sırlı Servis Tabağı",
+    category: "seramik",
+    price: 690,
+    currency: "TRY",
+    image: "/images/products/kul-sirli-servis-tabagi.jpg",
+    description:
+      "Fırında eriyen odun külü sırı gövdenin alt kenarına doğru akar ve her pişirimde başka bir yerde toplanır. Bu yüzden iki tabağın damla deseni asla birbirini tutmaz.",
+    stock: { status: "low_stock", quantity: 5 },
+    specs: {
+      material: "Şamotlu stoneware",
+      dimensions: "Ø 24 × 3 cm",
+      weight: "720 g",
+      color: "Kül grisi · petrol mavisi",
+      finish: "Odun külü sırı, yarı mat",
+      care: "Fırına ve bulaşık makinesine uygun",
+    },
+    features: [
+      "Her pişirimde farklı akış deseni",
+      "Servis ve fırın kabı olarak kullanılır",
+      "Çift pişirimle sertleştirilmiş gövde",
+    ],
+  },
+  {
+    id: "prd-012",
+    slug: "blok-mum-deniz-tuzu-adacayi",
+    name: 'Blok Mum "Deniz Tuzu & Adaçayı"',
+    category: "mum",
+    price: 420,
+    currency: "TRY",
+    image: "/images/products/blok-mum-deniz-tuzu-adacayi.jpg",
+    description:
+      "Deniz tuzunun serinliği adaçayının kuru otsu kokusuyla açılıyor, arkada ince bir okaliptüs izi kalıyor. Kalıptan çıkan blok, yüzeyinde mumun kendi çekme çizgilerini taşıyor.",
+    stock: { status: "in_stock", quantity: 33 },
+    specs: {
+      material: "Soya + kolza mumu",
+      dimensions: "7 × 7 × 12 cm",
+      weight: "410 g",
+      burnTime: "~60 saat",
+      wick: "Ahşap fitil",
+      care: "Düz ve ısıya dayanıklı tabak üzerinde yakın",
+    },
+    features: [
+      "Ahşap fitil hafif çıtırtı verir",
+      "Kabı yok, tamamı yanar",
+      "Serin ve otsu koku ailesi",
+    ],
+  },
+  {
+    id: "prd-013",
+    slug: "oksitlenmis-gumus-halka-bileklik",
+    name: "Oksitlenmiş Gümüş Halka Bileklik",
+    category: "taki",
+    price: 980,
+    currency: "TRY",
+    image: "/images/products/oksitlenmis-gumus-halka-bileklik.jpg",
+    description:
+      "Gümüş tel halka hâline getirilip oksitlendikten sonra yalnızca çıkıntılı yerleri elle parlatılır; girintilerde kalan koyu ton dokuyu öne çıkarır. Kolda döndükçe mat ve parlak yüzeyler sırayla görünür.",
+    stock: { status: "in_stock", quantity: 9 },
+    specs: {
+      material: "925 ayar gümüş",
+      dimensions: "İç çap 6,2 cm · Tel 3 mm",
+      weight: "18 g",
+      color: "Antik gümüş",
+      finish: "Oksit patina, tepe noktaları parlak",
+      care: "Kuru bezle silin, parlatma bezi kullanmayın",
+    },
+    features: [
+      "Bilek ölçüsüne göre hafifçe esnetilir",
+      "Patina zamanla derinleşir",
+      "Tek parça telden bükülür",
     ],
   },
 ];

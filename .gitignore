@@ -24,3 +24,9 @@ yarn-error.log*
 
 # Claude Code local overrides (the shared skill in .claude/skills stays tracked)
 .claude/settings.local.json
+
+# Full-resolution source photography (~72 MB of PNGs) and retired placeholder
+# art. Kept on disk, out of git: binaries bloat history permanently and cannot
+# be pruned without a force-push. Use Git LFS or asset storage if these need
+# to be versioned.
+assets-source/

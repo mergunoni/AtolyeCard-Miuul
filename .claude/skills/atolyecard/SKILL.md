@@ -187,6 +187,41 @@ Ortak zarfa `request` bloğu eklenir:
 
 `meeting_request` fire-and-forget **değildir**: doğrulama istemcide yapılır, gönderim sırasında buton `disabled` olur, 2xx cevabı beklenir.
 
+### `order_request` — Sipariş Ver
+
+Katalog kartındaki "Sipariş Ver" butonunun açtığı modaldan gönderilir. Kartvizit olayları `card` bloğu taşır; sipariş olayı onun yerine **`product`** ve **`order`** bloklarını taşır:
+
+```json
+{
+  "event": "order_request",
+  "sentAt": "2026-07-26T15:22:08.940Z",
+  "product": {
+    "id": "prd-001",
+    "slug": "toprak-seramik-kupa",
+    "name": "Toprak Seramik Kupa",
+    "price": 480,
+    "currency": "TRY"
+  },
+  "order": {
+    "name": "Ayşe Demir",
+    "phone": "+905321112233"
+  },
+  "meta": { "source": "web", "locale": "tr-TR", "userAgent": "Mozilla/5.0 ..." }
+}
+```
+
+| Alan | Zorunlu | Kural |
+|---|---|---|
+| `product` | ✅ | Ürünün tamamı değil, sadece bu beş alan. `specs`/`features`/`description` gönderilmez |
+| `product.price` | ✅ | Sipariş anındaki fiyat; sonradan zam gelse bile talep bu fiyatla kaydedilir |
+| `order.name` | ✅ | 2–80 karakter, trim'lenmiş |
+| `order.phone` | ✅ | E.164'e çevrilmiş (`+90…`). Kullanıcı 10 haneli girer, istemci normalleştirir |
+
+Kurallar:
+- Buton **yalnızca stokta olan ürünlerde** gösterilir; `out_of_stock` kartlarda "Gelince Haber Ver" kalır — tükenen ürüne sipariş çıkmaz.
+- `meeting_request` gibi fire-and-forget **değildir**: boş alanla gönderim istemcide engellenir, gönderim sırasında buton `disabled` olur, 2xx beklenir.
+- 2xx sonrası modal "Siparişiniz alındı" onayını gösterir ve **3 sn** sonra kapanır; zamanlayıcı unmount'ta temizlenir.
+
 ### Cevap ve hata davranışı
 
 | Durum | Bileşen davranışı |

@@ -1,4 +1,8 @@
+import { useState } from "react";
 import ProductImage from "./ProductImage.jsx";
+import OrderModal from "./OrderModal.jsx";
+import StockAlertModal from "./StockAlertModal.jsx";
+import { formatPrice } from "../lib/format.js";
 
 const STOCK_LABELS = {
   in_stock: "Stokta",
@@ -22,14 +26,6 @@ const SPEC_LABELS = {
   care: "Bakım",
 };
 
-/** Currency comes from the product, so a second currency needs no code change. */
-const formatPrice = (price, currency = "TRY") =>
-  new Intl.NumberFormat("tr-TR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(price);
-
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
   day: "numeric",
   month: "long",
@@ -37,6 +33,9 @@ const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
 
 /** One product from the catalog. Actions are passed in, never fired here. */
 export default function ProductCard({ product, onAddToCart, onNotify }) {
+  const [ordering, setOrdering] = useState(false);
+  const [alerting, setAlerting] = useState(false);
+  const [alertSaved, setAlertSaved] = useState(false);
   const { status, quantity, restockAt } = product.stock;
   const soldOut = status === "out_of_stock";
 
@@ -78,9 +77,10 @@ export default function ProductCard({ product, onAddToCart, onNotify }) {
             <button
               type="button"
               className="btn btn--ghost"
-              onClick={() => onNotify?.(product)}
+              onClick={() => setAlerting(true)}
+              disabled={alertSaved}
             >
-              Gelince Haber Ver
+              {alertSaved ? "Bildirim kaydedildi" : "Stok Bildirimi İste"}
             </button>
           ) : (
             <button
@@ -93,12 +93,39 @@ export default function ProductCard({ product, onAddToCart, onNotify }) {
           )}
         </div>
 
+        {/* Ordering something that is out of stock would be a dead end — those
+            cards keep the notify action instead. */}
+        {!soldOut && (
+          <button
+            type="button"
+            className="card__order"
+            onClick={() => setOrdering(true)}
+          >
+            Sipariş Ver
+          </button>
+        )}
+
         {soldOut && restockAt && (
           <p className="card__restock">
             {dateFormatter.format(new Date(restockAt))} tarihinde tekrar stokta
           </p>
         )}
       </div>
+
+      {ordering && (
+        <OrderModal product={product} onClose={() => setOrdering(false)} />
+      )}
+
+      {alerting && (
+        <StockAlertModal
+          product={product}
+          onSaved={(saved) => {
+            setAlertSaved(true);
+            onNotify?.(saved);
+          }}
+          onClose={() => setAlerting(false)}
+        />
+      )}
     </article>
   );
 }

@@ -1,0 +1,175 @@
+/* Shared modal shell + form field styles. Owned by FormModal.jsx and reusable
+   by any webhook-backed form. Palette vars carry fallbacks in case index.css
+   renames them. */
+
+.fmodal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(25, 35, 45, 0.55);
+  backdrop-filter: blur(3px);
+  animation: fmodal-fade 0.16s ease-out;
+}
+
+.fmodal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 28px 26px 26px;
+  border-radius: 20px;
+  background: var(--card-bg, #fffdf9);
+  color: var(--ink, #3a2e26);
+  font-family: inherit;
+  box-shadow: 0 30px 60px -24px rgba(25, 35, 45, 0.7);
+  animation: fmodal-rise 0.2s ease-out;
+}
+.fmodal:focus { outline: none; }
+
+.fmodal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted, #6b5a4c);
+  font-size: 22px;
+  line-height: 1;
+  font-family: inherit;
+}
+.fmodal__close:hover { background: var(--cream, #f6efe6); }
+
+.fmodal__title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding-right: 28px;
+}
+
+.fmodal__lead {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted, #6b5a4c);
+}
+
+.fmodal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.fmodal-field { display: flex; flex-direction: column; gap: 5px; }
+
+.fmodal-field__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted, #6b5a4c);
+}
+
+.fmodal-field__input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line-strong, #ddcdb8);
+  border-radius: var(--radius-control, 12px);
+  background: #fff;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14.5px;
+}
+.fmodal-field__input:focus {
+  outline: none;
+  border-color: var(--terracotta, #c1613c);
+  box-shadow: 0 0 0 3px rgba(63, 131, 171, 0.18);
+}
+.fmodal-field__input[aria-invalid="true"] { border-color: #b4453a; }
+.fmodal-field__input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* The product is decided by the card that opened this modal. */
+.fmodal-field__input--locked {
+  background: var(--cream, #f6efe6);
+  border-style: dashed;
+  color: var(--muted, #6b5a4c);
+  font-weight: 600;
+  cursor: default;
+}
+
+.fmodal-field__error { font-size: 12px; color: #a63d32; }
+
+.fmodal__alert {
+  padding: 11px 13px;
+  border-radius: 11px;
+  background: #f7e4e1;
+  color: #8c3f36;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fmodal__submit {
+  margin-top: 2px;
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-control, 12px);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #fff;
+  /* Light end matches index.css: --azure (#3f83ab) gives white only 4.16:1,
+     #3a789d gives 4.8:1. */
+  background: linear-gradient(135deg, #3a789d, var(--azure-deep, #245876));
+}
+.fmodal__submit:disabled { opacity: 0.65; cursor: progress; }
+
+.fmodal__done { padding: 12px 0 6px; text-align: center; }
+
+.fmodal__tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--ok-bg, #e4eee1);
+  color: var(--ok-ink, #34602d);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.fmodal__done h2 {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.fmodal__done p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted, #6b5a4c);
+}
+
+@keyframes fmodal-fade { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes fmodal-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fmodal-backdrop, .fmodal { animation: none; }
+}
