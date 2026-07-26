@@ -134,14 +134,17 @@ body {
   box-shadow: var(--shadow-rest), inset 0 1px 0 #fff;
 }
 
-/* 64px in the component → 96px here (+50%). The SVG carries a viewBox, so this
-   is a lossless upscale; crispEdges stops the module grid from being softened
-   by anti-aliasing at the non-integer module size (96 / 25 = 3.84px). */
+/* 64px in the component → 100px here (+56%). The SVG carries a viewBox, so
+   this is a lossless upscale.
+   No shape-rendering override on purpose: the symbol's module count depends on
+   the length of the encoded URL (25 modules today, more once this points at a
+   real domain), so no fixed pixel width can guarantee whole-pixel modules.
+   crispEdges would then snap neighbouring modules to different widths and
+   distort the grid; plain anti-aliasing stays correct at any module count. */
 .page__qr svg {
   display: block;
-  width: 96px;
-  height: 96px;
-  shape-rendering: crispEdges;
+  width: 100px;
+  height: 100px;
 }
 
 .page__qr span {
