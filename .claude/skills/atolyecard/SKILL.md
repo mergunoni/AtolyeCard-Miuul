@@ -1,79 +1,101 @@
 ---
 name: atolyecard
-description: AtölyeKart dijital kartvizit (AtolyeCard) veya ürün kataloğu üzerinde çalışılırken kullanılır — kartvizit.html, AtolyeCard.jsx, ProductGrid.jsx, src/data/card.js, src/data/products.js, "Kartı Kaydet"/vCard indirme, "Toplantı Talep Et" formu, webhook payload'ı, n8n/Make/Zapier bağlantısı, ürün ekleme/fiyat/stok durumu değişikliği veya kart alanlarının (telefon, e-posta, sosyal linkler) düzenlenmesi söz konusu olduğunda.
+description: AtölyeKart ürün kataloğu veya dijital kartvizit üzerinde çalışılırken kullanılır — AtolyeCard.html, src/data/products.js, ProductCard/ProductList, sipariş ve stok bildirimi modalları, vCard indirme, webhook payload'ı, n8n/Make/Zapier bağlantısı, ürün ekleme/fiyat/stok durumu değişikliği veya kart alanlarının (telefon, e-posta, sosyal linkler) düzenlenmesi söz konusu olduğunda.
 ---
 
-# AtolyeCard
+# AtölyeKart
 
-AtölyeKart'ın tek kişilik dijital kartvizitini render eden React bileşeni. İki dış aksiyonu vardır: **Kartı Kaydet** (vCard indirme) ve **Toplantı Talep Et** (form → webhook). Bu doküman bileşenin dosya/veri kurallarını ve webhook veri sözleşmesini tanımlar.
+Projede **iki ayrı teslimat** var. Karıştırmayın:
+
+| | Ürün kataloğu | Dijital kartvizit |
+|---|---|---|
+| Giriş noktası | `index.html` | `AtolyeCard.html` |
+| Teknoloji | React + Vite | Düz HTML, inline CSS + JS |
+| Veri | `src/data/products.js` | Dosyanın içinde sabit |
+| Dış aksiyon | Sipariş Ver, Stok Bildirimi İste (webhook) | Rehbere Kaydet (vCard) |
+| Stil | `src/index.css` | Kendi `<style>` bloğu |
+
+İkisi de `npm run build` ile derlenir; `vite.config.js` içindeki `rollupOptions.input` iki giriş noktasını da tanımlar. Birbirlerine karşılıklı bağlanırlar (katalogda `.page__card-link`, kartta `.catalog-link`).
+
+## Dosya Haritası
+
+```
+index.html                     Vite giriş noktası → src/main.jsx
+AtolyeCard.html                Kartvizit, kendi kendine yeten tek dosya
+vite.config.js                 İki giriş noktası + server.host
+src/
+  App.jsx                      Sayfa iskeleti, toast state'i, aksiyon handler'ları
+  index.css                    Katalogun tüm stilleri, tasarım token'ları
+  components/
+    ProductList.jsx            Ürün dizisini grid'e basar, boş durumu yönetir
+    ProductCard.jsx            Tek ürün kartı; modalların sahibi
+    ProductImage.jsx           Görsel + yüklenemezse placeholder
+    PageQrCode.jsx             Sayfanın kendi adresinin QR'ı
+    FormModal.jsx / .css       Paylaşılan modal kabuğu (portal, Escape, odak)
+    OrderModal.jsx / .css      Sipariş formu (ad + telefon)
+    StockAlertModal.jsx        Stok bildirimi formu (ad + e-posta)
+  lib/
+    webhook.js                 postEvent + WebhookError + buildMeta
+    useWebhookForm.js          Form yaşam döngüsü hook'u
+    format.js                  formatPrice
+  data/products.js             Katalog verisi
+public/images/products/        Ürün fotoğrafları, <slug>.jpg
+assets-source/                 Tam çözünürlüklü orijinaller — git dışında
+```
+
+**`src/components/ProductGrid.jsx` ölü koddur.** Hiçbir yerden import edilmiyor; `App.jsx` `ProductList` kullanır. Yeni iş yaparken ona dokunmayın, silinmesi gerekir.
 
 ## Bileşen Kuralları
 
 | Kural | Değer |
 |---|---|
-| Dosya | `src/components/AtolyeCard.jsx` — **tek dosya**, JSX + stiller birlikte |
-| Tip | Fonksiyon bileşeni (`export default function AtolyeCard({ card })`) |
-| State | Sadece hook'lar (`useState`, `useEffect`). Class bileşen yok |
-| Demo veri | `src/data/card.js` — bileşenin içine gömülmez |
-| Alt bileşen | Yok. Satır/ikon/buton parçaları aynı dosyada yerel fonksiyon olarak kalır |
+| Tip | Fonksiyon bileşeni, sadece hook'lar. Class bileşen yok |
+| Veri | Bileşen içinde `import { products }` yapılmaz; prop olarak girer |
+| Aksiyonlar | Prop'tur. `ProductList`/`ProductCard` içinde fetch/webhook çağrılmaz |
 | Metinler | Kullanıcıya görünen her metin Türkçe; kod ve yorumlar İngilizce |
+| Stil | Katalog stilleri `src/index.css`'te; modal stilleri bileşenin yanında (`FormModal.css`) |
 
-**Tek dosya ne demek:** `AtolyeCard.jsx` kendi başına çalışır — dışarıdan sadece `src/data/card.js` ve webhook URL'i (`import.meta.env.VITE_WEBHOOK_URL`) alır. Bileşeni `AtolyeCardHeader`, `AtolyeCardRow` gibi ayrı dosyalara bölmeyin; kart tek bir görsel birim ve tek bir bakım noktasıdır.
+**Bileşen kompozisyonu serbesttir.** Modal kabuğu (`FormModal`) ve gönderim durum makinesi (`useWebhookForm`) iki form arasında paylaşılır; bu ayrıştırma bilinçlidir, geri alınmamalıdır. Yeni bir webhook formu gerektiğinde bu ikisinin üzerine kurun — alanlar, doğrulama, payload ve metinler çağıran tarafta kalır.
 
-**Veri bileşene prop olarak girer.** `AtolyeCard` içinde `import { card } from "../data/card"` yapmayın; veriyi çağıran taraf verir. Böylece kart ileride API/CMS verisiyle beslenebilir.
+> Bu dokümanın eski sürümü "tek dosya, alt bileşen yok" kuralını dayatıyordu. Katalog bu kuralı aşmış durumda ve mevcut yapı kasıtlıdır; kural kaldırıldı.
 
-```jsx
-// src/App.jsx
-import { card } from "./data/card";
-import AtolyeCard from "./components/AtolyeCard";
+## Kartvizit — `AtolyeCard.html`
 
-export default function App() {
-  return <AtolyeCard card={card} />;
-}
-```
+| Kural | Değer |
+|---|---|
+| Dosya | `AtolyeCard.html`, kök dizinde, **tek parça** |
+| Bağımlılık | Yok. Harici script, stylesheet veya font yüklemez |
+| Veri | HTML içinde sabit; ayrı bir veri dosyası yoktur |
+| Aksiyon | Yalnızca vCard indirme (`#saveVcard`). Webhook çağrısı yapmaz |
+| Palet | `src/index.css`'teki token'ların elle tutulan kopyası |
 
-## Demo Veri — `src/data/card.js`
+**Neden tek parça:** kart elden ele verilen, tek başına açılan bir dosyadır. `src/index.css`'i import etseydi tek başına taşınamazdı. Bedeli şu: **palet katalogda değişirse `AtolyeCard.html` içindeki `:root` bloğunu elle güncellemeniz gerekir.** Dosyanın başında bu not duruyor.
 
-Tek bir named export: `card`. Şema sabittir; yeni alan eklendiğinde bu doküman ve webhook `card` bloğu birlikte güncellenir.
+**İletişim bilgileri dosyada üç yerde tekrar eder** ve elle senkron tutulur:
 
-```js
-// Demo data. Replace with API/CMS source before production.
-export const card = {
-  slug: "elif-yilmaz",                    // required — webhook'ta kartın kimliği
-  fullName: "Elif Yılmaz",                // required
-  initials: "EY",                         // required — avatar fallback
-  role: "Seramik Eğitmeni · Atölye Kurucusu",
-  organization: "AtölyeKart",
-  tagline: "El yapımı seramik atölyeleri ve birebir dersler.",
-  phone: "+905551234567",                 // E.164, boşluksuz
-  email: "elif@atolyekart.com",
-  website: "https://www.atolyekart.com",
-  location: { label: "Kadıköy, İstanbul", mapsUrl: "https://maps.google.com/?q=..." },
-  socials: [                              // type: instagram | whatsapp | linkedin | x
-    { type: "instagram", url: "https://instagram.com/atolyekart" },
-    { type: "whatsapp", url: "https://wa.me/905551234567" },
-  ],
-};
-```
+1. Görünen satırlar (`.row` içindeki `.value`) ve bunların `href`'leri (`tel:`, `mailto:`)
+2. WhatsApp bağlantısı (`wa.me/<numara>`)
+3. `#saveVcard` script'indeki vCard string'i (`TEL;`, `EMAIL;`, `FN:`, `N:`) ve indirilen dosya adı
 
-Kurallar:
-- Telefon **E.164** (`+90...`, boşluk/parantez yok). Görüntülemede formatlamak bileşenin işi.
-- Opsiyonel alan yoksa **anahtarı yazmayın** — `null`/`""` göndermeyin. Bileşen eksik alanın satırını render etmez.
-- `slug` kebab-case ve değişmez; webhook tarafında kartı eşleştiren anahtardır.
+**Alan adı henüz yok.** "Web" satırı `/` adresine (kataloğa) bakar ve vCard'da `URL:` satırı **bilerek yoktur** — rehbere kaydedilen ölü bir adres, adres olmamasından kötüdür. `atolyekart.com` yayına girdiğinde ikisini birlikte geri koyun.
+
+Ayrıca avatar baş harfleri (`.avatar`) ve `<title>` de isme bağlıdır. Biri değişip diğeri unutulursa kartta yazan bilgi ile rehbere kaydedilen bilgi ayrışır; bu sessiz bir hatadır, kimse fark etmez.
+
+> **Gerçek kişisel veri uyarısı.** Bu dosya git'te izleniyor. Gerçek telefon/e-posta yazıldığında commit edildiği anda repo geçmişine kalıcı girer; repo herkese açıksa bilgi internete açılır ve geçmişten çıkarmak force-push ile geçmiş yeniden yazmayı gerektirir. Gerçek veriye geçmeden önce reponun görünürlüğünü teyit edin.
 
 ## Ürün Kataloğu — `src/data/products.js`
 
-Kartvizit tek bir objedir; katalog **dizi**dir. Aynı dosya/veri kuralları geçerlidir: veri dosyası saf veridir, bileşen veriyi prop olarak alır, kullanıcıya görünen metin veri dosyasına girmez.
+Dizi. Veri dosyası saf veridir: kullanıcıya görünen etiketler (`Stokta`, `Malzeme`) bileşende durur, burada değil.
 
 ```js
 {
   id: "prd-001",                 // required — sabit, silinse bile yeniden kullanılmaz
-  slug: "toprak-seramik-kupa",   // required — kebab-case, URL anahtarı
+  slug: "toprak-seramik-kupa",   // required — kebab-case, URL ve dosya adı anahtarı
   name: "Toprak Seramik Kupa",   // required
   category: "seramik",           // seramik | mum | taki
   price: 480,                    // required — sade TRY tam sayısı, kuruş yok
   currency: "TRY",               // ISO 4217
-  image: "/images/products/toprak-seramik-kupa.jpg",  // /public altında, slug ile aynı ad
+  image: "/images/products/toprak-seramik-kupa.jpg",  // slug ile aynı ad
   description: "…",              // 1–2 cümle
   stock: { status, quantity, restockAt },
   specs: { material: "…", dimensions: "…" },          // serbest anahtarlı
@@ -83,186 +105,116 @@ Kartvizit tek bir objedir; katalog **dizi**dir. Aynı dosya/veri kuralları geç
 
 | Kural | Gerekçe |
 |---|---|
-| `price` sayı, string değil | Sıralama ve filtreleme; biçimleme `Intl.NumberFormat("tr-TR")` ile bileşende |
+| `price` sayı, string değil | Sıralama ve filtreleme; biçimleme `lib/format.js` içinde |
 | `stock.status` enum: `in_stock` / `low_stock` / `out_of_stock` | Boolean, "son 3 adet" rozetini ve tükendi akışını ayıramaz |
 | `stock.quantity` her zaman yazılır | `low_stock` rozeti adedi gösterir; `out_of_stock` için `0` |
-| `stock.restockAt` **sadece** `out_of_stock` ürünlerde | "Gelince haber ver" akışının dayanağı; `YYYY-MM-DD` |
-| `specs` anahtarları kategoriye göre değişir | Mumda `burnTime`, takıda `clasp`, seramikte `capacity`. Sabit liste boş satır üretir |
+| `stock.restockAt` **sadece** `out_of_stock` ürünlerde | Kartın altındaki "tekrar stokta" notunun dayanağı; `YYYY-MM-DD` |
+| `specs` anahtarları kategoriye göre değişir | Mumda `burnTime`, takıda `clasp`, seramikte `capacity` |
 | `features` tam 3 madde | Kart yüksekliği grid'de tutarlı kalır |
-| Türkçe etiketler veri dosyasında **yok** | `stockLabels` gibi UI metinleri bileşende durur; kod İngilizce / arayüz Türkçe |
 
-Yeni ürün eklerken: `id` sıradaki numara, `slug` ve `image` dosya adı birebir aynı, `specs` içinde en az `material` ve `dimensions`.
+**Mevcut durum:** 8 ürün — `prd-001, 004, 005, 008, 010, 011, 012, 013`. Aradaki numaralar emekliye ayrılmıştır (`prd-007` "Kavanoz Mum" katalogdan çıkarıldı); **id'ler yeniden kullanılmaz.**
 
-### Liste bileşeni — `src/components/ProductGrid.jsx`
+### Görseller
 
-Tek dosya kuralı burada da geçerli: grid, ürün kartı ve stiller aynı dosyada. `ProductCard` ayrı dosyaya çıkarılmaz — sadece bu grid içinde kullanılır.
+Fotoğraflar `public/images/products/<slug>.jpg`, 900px genişlik, JPEG kalite 80. Tam çözünürlüklü orijinaller `assets-source/products/` altındadır ve `.gitignore`'dadır — ikili dosyalar git geçmişini kalıcı şişirir.
 
-```jsx
-<ProductGrid products={products} onAddToCart={fn} onNotify={fn} />
-```
+Yeni fotoğraf eklerken: 900px'e indirin, slug adıyla kaydedin, orijinali `assets-source/` altına koyun. macOS dosya adları NFD normalizasyonu kullanır; Türkçe adlarla eşleştirme yaparken iki tarafı da `normalize("NFC")` ile karşılaştırın, yoksa `ü`/`ö`/`ç` içeren adlar tutmaz.
 
-- Aksiyonlar **prop**tur, bileşen içinde fetch/webhook çağrısı yapılmaz.
-- `out_of_stock` ürünlerde birincil buton "Sepete Ekle" yerine "Gelince Haber Ver" olur; buton `disabled` bırakılmaz — tükenen ürün de bir dönüşüm noktasıdır.
+## Katalog Davranışı
+
+- `out_of_stock` ürünlerde birincil buton **"Stok Bildirimi İste"** olur, modal açar (ad + e-posta).
+- Gönderim başarılı olunca buton **"Bildirim kaydedildi"** durumuna geçip `disabled` olur. Bu durum yalnızca `useState`'te tutulur; sayfa yenilenince sıfırlanır.
+- Stokta olan ürünlerde "Sepete Ekle" (toast) ve "Sipariş Ver" (modal) bulunur.
 - Boş dizi geldiğinde grid değil, Türkçe boş durum metni render edilir.
+- Grid sabit 4 sütun; satır uzunluğu tasarım kararıdır, viewport'un yan etkisi değil.
 
 ## Webhook Veri Sözleşmesi
 
-Her iki aksiyon da **aynı uca** POST edilir; ayrımı `event` alanı yapar.
+Her olay **aynı uca** POST edilir; ayrımı `event` alanı yapar. Taşıma katmanı `src/lib/webhook.js`.
 
 ```
 POST  import.meta.env.VITE_WEBHOOK_URL
 Content-Type: application/json
 ```
 
-### Ortak zarf
-
-Her payload tam olarak şu üst seviye anahtarları içerir — fazlası eklenmez:
-
-```json
-{
-  "event": "card_saved | meeting_request",
-  "sentAt": "2026-07-26T11:03:11.482Z",
-  "card": {
-    "slug": "elif-yilmaz",
-    "fullName": "Elif Yılmaz",
-    "organization": "AtölyeKart"
-  },
-  "meta": {
-    "source": "web",
-    "locale": "tr-TR",
-    "referrer": "https://instagram.com/",
-    "userAgent": "Mozilla/5.0 ..."
-  }
-}
-```
+Payload tam olarak şu üst seviye anahtarları içerir — **fazlası eklenmez**: `event`, `sentAt`, olay bloğu, `meta`.
 
 - `sentAt`: ISO 8601, **UTC** (`new Date().toISOString()`).
-- `card`: kartın tamamı değil, sadece bu üç alan. Telefon/e-posta gibi sahibinin iletişim bilgileri webhook'a gönderilmez — zaten alıcı tarafında bilinir.
-- `meta.referrer`: boşsa anahtarı atlayın.
-
-### `card_saved` — Kartı Kaydet
-
-vCard **indirildikten sonra** gönderilir (kullanıcı dosyayı almadan olay üretilmez). Ortak zarfa ek alan yoktur:
-
-```json
-{
-  "event": "card_saved",
-  "sentAt": "2026-07-26T11:03:11.482Z",
-  "card": { "slug": "elif-yilmaz", "fullName": "Elif Yılmaz", "organization": "AtölyeKart" },
-  "meta": { "source": "web", "locale": "tr-TR", "userAgent": "Mozilla/5.0 ..." }
-}
-```
-
-vCard indirmesi webhook'a **bağlı değildir**: istek başarısız olsa da dosya iner ve kullanıcıya hata gösterilmez (fire-and-forget, `catch` sessiz).
-
-### `meeting_request` — Toplantı Talep Et
-
-Ortak zarfa `request` bloğu eklenir:
-
-```json
-{
-  "event": "meeting_request",
-  "sentAt": "2026-07-26T11:05:40.117Z",
-  "card": { "slug": "elif-yilmaz", "fullName": "Elif Yılmaz", "organization": "AtölyeKart" },
-  "request": {
-    "name": "Ayşe Demir",
-    "email": "ayse@example.com",
-    "phone": "+905321112233",
-    "topic": "Birebir seramik dersi",
-    "preferredAt": "2026-08-04T10:00:00+03:00",
-    "message": "Hafta içi akşam saatleri benim için uygun."
-  },
-  "meta": { "source": "web", "locale": "tr-TR", "userAgent": "Mozilla/5.0 ..." }
-}
-```
-
-| Alan | Zorunlu | Kural |
-|---|---|---|
-| `request.name` | ✅ | 2–80 karakter, trim'lenmiş |
-| `request.email` | ✅ | Geçerli e-posta; küçük harfe çevrilir |
-| `request.phone` | ➖ | E.164. Yoksa anahtar yazılmaz |
-| `request.topic` | ➖ | Maks. 120 karakter |
-| `request.preferredAt` | ➖ | ISO 8601, **timezone offset'li** (`+03:00`). Sadece tarih varsa `T00:00:00+03:00` |
-| `request.message` | ➖ | Maks. 1000 karakter |
-
-`meeting_request` fire-and-forget **değildir**: doğrulama istemcide yapılır, gönderim sırasında buton `disabled` olur, 2xx cevabı beklenir.
+- `meta`: `{ source: "web", locale: "tr-TR", userAgent }`. `referrer` boşsa anahtar yazılmaz.
+- Cevap gövdesi okunmaz; yalnızca HTTP durumu dikkate alınır. 10 sn'de `AbortController` ile iptal.
 
 ### `order_request` — Sipariş Ver
-
-Katalog kartındaki "Sipariş Ver" butonunun açtığı modaldan gönderilir. Kartvizit olayları `card` bloğu taşır; sipariş olayı onun yerine **`product`** ve **`order`** bloklarını taşır:
 
 ```json
 {
   "event": "order_request",
-  "sentAt": "2026-07-26T15:22:08.940Z",
-  "product": {
-    "id": "prd-001",
-    "slug": "toprak-seramik-kupa",
-    "name": "Toprak Seramik Kupa",
-    "price": 480,
-    "currency": "TRY"
-  },
-  "order": {
-    "name": "Ayşe Demir",
-    "phone": "+905321112233"
-  },
-  "meta": { "source": "web", "locale": "tr-TR", "userAgent": "Mozilla/5.0 ..." }
+  "sentAt": "2026-07-27T15:22:08.940Z",
+  "product": { "id": "prd-001", "slug": "toprak-seramik-kupa",
+               "name": "Toprak Seramik Kupa", "price": 480, "currency": "TRY" },
+  "order":   { "name": "Ayşe Demir", "phone": "+905321112233" },
+  "meta":    { "source": "web", "locale": "tr-TR", "userAgent": "…" }
 }
 ```
 
 | Alan | Zorunlu | Kural |
 |---|---|---|
-| `product` | ✅ | Ürünün tamamı değil, sadece bu beş alan. `specs`/`features`/`description` gönderilmez |
-| `product.price` | ✅ | Sipariş anındaki fiyat; sonradan zam gelse bile talep bu fiyatla kaydedilir |
+| `product` | ✅ | Ürünün tamamı değil, sadece bu beş alan |
+| `product.price` | ✅ | Sipariş anındaki fiyat |
 | `order.name` | ✅ | 2–80 karakter, trim'lenmiş |
-| `order.phone` | ✅ | E.164'e çevrilmiş (`+90…`). Kullanıcı 10 haneli girer, istemci normalleştirir |
+| `order.phone` | ✅ | E.164'e çevrilmiş. Kullanıcı 10 hane girer, istemci normalleştirir |
 
-Kurallar:
-- Buton **yalnızca stokta olan ürünlerde** gösterilir; `out_of_stock` kartlarda "Gelince Haber Ver" kalır — tükenen ürüne sipariş çıkmaz.
-- `meeting_request` gibi fire-and-forget **değildir**: boş alanla gönderim istemcide engellenir, gönderim sırasında buton `disabled` olur, 2xx beklenir.
-- 2xx sonrası modal "Siparişiniz alındı" onayını gösterir ve **3 sn** sonra kapanır; zamanlayıcı unmount'ta temizlenir.
+### `stock_alert` — Stok Bildirimi İste
+
+Yalnızca `out_of_stock` ürünlerde. `order` yerine **`alert`** bloğu taşır.
+
+```json
+{
+  "event": "stock_alert",
+  "sentAt": "2026-07-27T15:54:37.167Z",
+  "product": { "id": "prd-004", "slug": "sirsiz-seramik-saksi",
+               "name": "Sırsız Seramik Saksı", "price": 620, "currency": "TRY" },
+  "alert":   { "name": "Ayşe Demir", "email": "ayse@ornek.com" },
+  "meta":    { "source": "web", "locale": "tr-TR", "userAgent": "…" }
+}
+```
+
+| Alan | Zorunlu | Kural |
+|---|---|---|
+| `alert.name` | ✅ | 2–80 karakter, trim'lenmiş |
+| `alert.email` | ✅ | Geçerli e-posta; trim'lenir ve küçük harfe çevrilir |
 
 ### Cevap ve hata davranışı
 
 | Durum | Bileşen davranışı |
 |---|---|
-| 2xx | Formu temizle, Türkçe onay mesajı göster |
+| 2xx | Onay ekranı, 3 sn sonra modal kapanır; zamanlayıcı unmount'ta temizlenir |
 | 4xx / 5xx / ağ hatası | Formu koru, Türkçe hata mesajı göster, tekrar denemeye izin ver |
 | 10 sn timeout | `AbortController` ile iptal → hata durumu |
 
-Cevap gövdesi okunmaz; sadece HTTP durumu dikkate alınır. Böylece webhook sağlayıcısı (n8n, Make, Zapier) değiştiğinde bileşen değişmez.
+Hata kodları → Türkçe metin eşlemesi `lib/useWebhookForm.js` içindeki `DEFAULT_ERROR_MESSAGES`; akışa özel metinler `messages` ile override edilir.
 
-### Gönderim iskeleti
+### Uygulanmamış olaylar
 
-```js
-// Single endpoint for both events; `event` discriminates.
-async function postEvent(payload) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  try {
-    const res = await fetch(import.meta.env.VITE_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    return res.ok;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-```
+`card_saved` ve `meeting_request` bu dokümanın eski sürümünde tanımlıydı ama **kodda karşılıkları yok**. Kartvizit webhook çağrısı yapmaz; vCard indirmesi tamamen istemci tarafındadır. Bu olaylar gerekirse önce burada tasarlanmalı, sonra yazılmalıdır.
+
+## Erişilebilirlik
+
+Katalog ve kartvizit WCAG AA hedefler; değişiklik yaparken bozmayın.
+
+- Gövde metni ≥ 4.5:1, büyük metin ≥ 3:1. Mevcut değerler 5.2–12.9 aralığında.
+- `--azure` (#3f83ab) **beyaz metin taşımaz** — 4.16:1'de kalır. Buton degradelerinin açık ucu `#3a789d` (4.8:1).
+- `--azure` küçük metin rengi olarak da kullanılmaz; onun yerine `--azure-dark`.
+- Tüm etkileşimli öğelerde `:focus-visible`; `prefers-reduced-motion` blokları mevcut.
 
 ## Sık Yapılan Hatalar
 
-- **Kartı alt bileşenlere bölmek** → tek dosya kuralı bozulur, stiller dağılır.
-- **`src/data/card.js`'i bileşen içinden import etmek** → kart tek bir kişiye çakılır, prop'la geçin.
-- **Tüm `card` nesnesini webhook'a göndermek** → sözleşme `slug`, `fullName`, `organization` ile sınırlı.
-- **`preferredAt`'i offset'siz göndermek** → sunucu tarafında saat kayar; her zaman `+03:00` gibi offset ekleyin.
-- **Webhook hatasında vCard indirmesini iptal etmek** → `card_saved` fire-and-forget'tir, kullanıcı akışını bloklamaz.
-- **Webhook URL'ini koda gömmek** → `.env.local` içinde `VITE_WEBHOOK_URL`, `.env.example`'a örnek değer.
-- **`price`'ı `"480 TL"` gibi string yazmak** → sıralama/filtreleme kırılır; sayı tutup bileşende biçimlendirin.
-- **Stoku `inStock: true/false` yapmak** → `low_stock` ve "gelince haber ver" akışı kaybolur.
-- **Tükenen ürünün butonunu `disabled` bırakmak** → talep toplama fırsatı kaçar, "Gelince Haber Ver"e çevirin.
+- **`src/data/products.js`'i bileşen içinden import etmek** → veri prop'la geçer.
+- **Tüm ürün nesnesini webhook'a göndermek** → sözleşme beş alanla sınırlı.
+- **Zarfa yeni üst seviye anahtar eklemek** (`formType` gibi) → ayrım `event` ile yapılır.
+- **`price`'ı `"480 TL"` gibi string yazmak** → sıralama/filtreleme kırılır.
+- **Stoku `inStock: true/false` yapmak** → `low_stock` ve stok bildirimi akışı kaybolur.
+- **Tükenen ürünün butonunu baştan `disabled` bırakmak** → talep toplama fırsatı kaçar. Yalnızca **gönderim sonrası** pasifleşir.
+- **`AtolyeCard.html`'i parçalara bölmek veya `index.css`'e bağlamak** → tek başına taşınabilirliği gider.
+- **Katalog paletini değiştirip kartviziti unutmak** → iki dosya elle senkron tutulur.
+- **Webhook URL'ini koda gömmek** → `.env.local` içinde `VITE_WEBHOOK_URL`, `.env.example`'a placeholder.
+- **Tam çözünürlüklü fotoğrafı `public/` altına koymak** → 8 MB'lık PNG'ler build'e girer; 900px JPEG üretin.
