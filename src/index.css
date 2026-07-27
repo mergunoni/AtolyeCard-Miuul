@@ -156,10 +156,36 @@ body {
   color: var(--muted-soft);
 }
 
-/* Below this width the QR would collide with the heading — and a phone is
-   already on the page it points to. */
+/* Kept on small screens too: the visitor who scanned it is now holding the
+   page, and the code is how they hand it on to someone else. Shrunk rather
+   than hidden so it clears the centred masthead. */
 @media (max-width: 900px) {
-  .page__qr { display: none; }
+  /* Out of the absolute layer and into normal flow, pinned right by the auto
+     margin. Overlap with the centred masthead then cannot happen at any width
+     — shrinking alone was not enough: the lead ran under it around 700-768px
+     and the title did below ~400px. */
+  .page__qr {
+    position: static;
+    width: max-content;
+    margin: 0 0 var(--space-5) auto;
+    gap: 6px;
+    padding: 10px 10px 8px;
+    border-radius: 14px;
+  }
+  /* Kept generous: in flow there is nothing left to collide with, and a code
+     being scanned off a phone screen needs the module size. */
+  .page__qr svg { width: 76px; height: 76px; }
+  .page__qr span { font-size: 9px; letter-spacing: 0.04em; }
+}
+
+@media (max-width: 460px) {
+  .page__qr {
+    margin-bottom: var(--space-4);
+    padding: 9px 9px 7px;
+    border-radius: 12px;
+  }
+  .page__qr svg { width: 68px; height: 68px; }
+  .page__qr span { font-size: 8px; }
 }
 
 /* --------------------------------------------------------------------------
