@@ -240,6 +240,30 @@ body {
   text-wrap: pretty;
 }
 
+/* Quiet secondary route out of the catalog. Underline offset rather than a
+   button: it is a side door, not a call to action competing with the grid. */
+.page__card-link {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--azure-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--silver-dark);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.page__card-link:hover {
+  color: var(--azure-deep);
+  text-decoration-color: currentColor;
+}
+.page__card-link:focus-visible {
+  outline: 2px solid var(--azure-dark);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
 /* Thin polished rule to close the masthead. */
 .page__head::after {
   content: "";

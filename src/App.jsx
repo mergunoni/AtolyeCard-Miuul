@@ -23,6 +23,12 @@ export default function App() {
           Seramik, mum ve takı — hepsi atölyede tek tek üretiliyor. Her parça
           kendi el izini taşıdığı için hiçbiri diğerinin aynısı değil.
         </p>
+
+        {/* Plain anchor, not a router link: the card is a standalone HTML
+            entry point, so this must be a real navigation. */}
+        <a className="page__card-link" href="/AtolyeCard.html">
+          Atölyenin dijital kartviziti
+        </a>
       </header>
 
       <main>
