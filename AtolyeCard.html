@@ -316,8 +316,11 @@
         </a>
 
         <!-- No domain yet: point at the catalog rather than a dead address.
+             Relative path, not "/" — this file is opened standalone (file://
+             or a non-root deployment path), where a root-absolute href
+             resolves away from the sibling index.html and goes nowhere.
              Swap both href and the visible value when atolyekart.com goes live. -->
-        <a class="row" href="/">
+        <a class="row" href="./index.html">
           <span class="ic">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           </span>
@@ -352,7 +355,7 @@
         Rehbere Kaydet
       </button>
 
-      <a class="catalog-link" href="/">El yapımı ürün kataloğu</a>
+      <a class="catalog-link" href="./index.html">El yapımı ürün kataloğu</a>
 
       <p class="foot"><b>AtölyeKart</b> · Dijital Kartvizit</p>
     </div>
