@@ -3,6 +3,7 @@ import FormModal from "./FormModal.jsx";
 import { buildMeta } from "../lib/webhook.js";
 import { useWebhookForm } from "../lib/useWebhookForm.js";
 import { formatPrice } from "../lib/format.js";
+import { CONSENT_ERROR, PRIVACY_NOTICE_URL } from "../lib/consent.js";
 
 const CLOSE_DELAY_MS = 3000;
 
@@ -30,8 +31,7 @@ function validate({ name, email, consent }) {
   else if (!EMAIL_PATTERN.test(trimmedEmail))
     errors.email = "Geçerli bir e-posta yazın, örneğin ayse@ornek.com.";
 
-  if (!consent)
-    errors.consent = "Devam etmek için aydınlatma metnini okuyup onaylamalısınız.";
+  if (!consent) errors.consent = CONSENT_ERROR;
 
   return errors;
 }
@@ -49,6 +49,7 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
   useEffect(() => () => clearTimeout(closeTimerRef.current), []);
 
   const buildPayload = useCallback(
+    // consent is a client-side gate only — never goes on the wire
     ({ name, email }) => ({
       event: "stock_alert",
       sentAt: new Date().toISOString(),
@@ -172,9 +173,10 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
                 onChange={handleCheckboxChange("consent")}
                 disabled={sending}
                 aria-invalid={Boolean(errors.consent)}
+                aria-describedby={errors.consent ? "stock-consent-error" : undefined}
               />
               <span>
-                <a href="/gizlilik-politikasi.html" target="_blank" rel="noopener">
+                <a href={PRIVACY_NOTICE_URL} target="_blank" rel="noopener">
                   Aydınlatma Metni
                 </a>
                 'ni okudum, kişisel verilerimin bu kapsamda işlenmesini kabul
@@ -182,7 +184,9 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
               </span>
             </label>
             {errors.consent && (
-              <span className="fmodal-field__error">{errors.consent}</span>
+              <span className="fmodal-field__error" id="stock-consent-error">
+                {errors.consent}
+              </span>
             )}
 
             {status === "error" && (
