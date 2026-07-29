@@ -8,12 +8,14 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      /* Two entry points. AtolyeCard.html is self-contained — no module
-         script, styles inline — so Rollup only copies it through; it is
-         listed here purely so `npm run build` emits it into dist/. */
+      /* Three entry points. AtolyeCard.html and gizlilik-politikasi.html are
+         self-contained — no module script, styles inline — so Rollup only
+         copies them through; they're listed here purely so `npm run build`
+         emits them into dist/. */
       input: {
         main: entry("./index.html"),
         card: entry("./AtolyeCard.html"),
+        policy: entry("./gizlilik-politikasi.html"),
       },
     },
   },

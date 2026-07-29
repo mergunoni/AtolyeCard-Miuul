@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gizlilik Politikası ve KVKK Aydınlatma Metni · AtölyeKart</title>
+  <style>
+    /* Self-contained by design, same reasoning as AtolyeCard.html: this page
+       must be shareable/openable on its own, so it carries its own copy of
+       the design tokens rather than importing src/index.css. */
+    :root {
+      --azure: #3f83ab;
+      --azure-dark: #2f6b8f;   /* accent text — 5.6:1 on --card-bg */
+      --azure-deep: #245876;
+
+      --mist: #eef2f6;
+      --line: #dfe6ec;
+
+      --ink: #25313d;          /* 12.9:1 on --card-bg */
+      --muted: #54626f;        /* 6.1:1 on --card-bg */
+      --card-bg: #fbfcfd;
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --font-brand: "Avenir Next", Avenir, "Century Gothic", Futura, "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      background: var(--mist);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .doc {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 28px 72px;
+      background: var(--card-bg);
+    }
+
+    .doc__eyebrow {
+      font-family: var(--font-brand);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--azure-dark);
+    }
+
+    .doc__title {
+      margin-top: 10px;
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .doc__updated {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .doc section {
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+    }
+
+    .doc h2 {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .doc p { margin-top: 12px; line-height: 1.7; font-size: 15px; }
+
+    .doc ul {
+      margin-top: 12px;
+      padding-left: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .doc li { line-height: 1.65; font-size: 15px; }
+
+    .doc a {
+      color: var(--azure-dark);
+      text-decoration-color: var(--line);
+      text-underline-offset: 3px;
+    }
+    .doc a:hover { color: var(--azure-deep); text-decoration-color: currentColor; }
+    .doc a:focus-visible {
+      outline: 2px solid var(--azure-dark);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    .doc .note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--mist);
+      color: var(--muted);
+      font-size: 13.5px;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .doc__back {
+      display: inline-block;
+      margin-top: 44px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--azure-dark);
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+      text-underline-offset: 4px;
+    }
+    .doc__back:hover { color: var(--azure-deep); text-decoration-color: currentColor; }
+    .doc__back:focus-visible {
+      outline: 2px solid var(--azure-dark);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    @media (max-width: 480px) {
+      .doc { padding: 40px 20px 56px; }
+      .doc__title { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <p class="doc__eyebrow">AtölyeKart</p>
+    <h1 class="doc__title">Kişisel Verilerin Korunması Hakkında Aydınlatma Metni</h1>
+    <p class="doc__updated">Son güncelleme: 29 Temmuz 2026</p>
+
+    <section>
+      <h2>1. Veri Sorumlusunun Kimliği</h2>
+      <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, aşağıda belirtilen kişisel verileriniz veri sorumlusu sıfatıyla Mehmet Ergün (AtölyeKart) tarafından bu aydınlatma metninde açıklanan kapsamda işlenmektedir.</p>
+      <ul>
+        <li><strong>Veri Sorumlusu:</strong> Mehmet Ergün (AtölyeKart) — gerçek kişi / şahıs işletmesi</li>
+        <li><strong>Adres:</strong> Kadıköy, İstanbul</li>
+        <li><strong>E-posta:</strong> <a href="mailto:mehmet@atolyekart.com">mehmet@atolyekart.com</a></li>
+        <li><strong>Telefon:</strong> <a href="tel:+905357650668">+90 535 765 06 68</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. İşlenen Kişisel Veri Kategorileri</h2>
+      <p>AtölyeKart web sitesindeki "Sipariş Ver" ve "Stok Bildirimi İste" formlarını doldurduğunuzda aşağıdaki kişisel verileriniz işlenir:</p>
+      <ul>
+        <li><strong>Kimlik:</strong> Ad, soyad</li>
+        <li><strong>İletişim:</strong> Telefon numarası (sipariş formu) ve/veya e-posta adresi (stok bildirimi formu)</li>
+        <li><strong>İşlem Güvenliği:</strong> Talebin gönderildiği tarih ve saat, kullandığınız tarayıcı/cihaz bilgisi (user agent), varsa siteye yönlendiren sayfa adresi (referrer)</li>
+      </ul>
+      <p>Sitedeki dijital kartvizit sayfası (AtölyeKart Dijital Kartvizit) sizden herhangi bir kişisel veri toplamaz; tam tersine, kartvizit sahibinin iletişim bilgilerini "Rehbere Kaydet" butonuyla sizin cihazınıza (vCard olarak) aktarır. Bu işlem tamamen tarayıcınızda gerçekleşir, AtölyeKart'a herhangi bir veri gönderilmez.</p>
+    </section>
+
+    <section>
+      <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
+      <p>Kişisel verileriniz;</p>
+      <ul>
+        <li>İlettiğiniz sipariş taleplerinin alınması, değerlendirilmesi ve sizinle iletişime geçilerek sonuçlandırılması,</li>
+        <li>Stok bildirimi taleplerinin kaydedilmesi ve ürün stoğa girdiğinde sizinle iletişime geçilmesi,</li>
+        <li>Talebinizle ilgili sizinle iletişim kurulması</li>
+      </ul>
+      <p>amaçlarıyla işlenmektedir.</p>
+    </section>
+
+    <section>
+      <h2>4. Kişisel Verilerin Toplanma Yöntemi ve Hukuki Sebebi</h2>
+      <p>Kişisel verileriniz, web sitesindeki ilgili formu doldurup göndermeniz yoluyla, doğrudan sizden, elektronik ortamda toplanmaktadır.</p>
+      <p>Verileriniz;</p>
+      <ul>
+        <li>Form gönderimi öncesinde işaretlediğiniz onay kutusuyla verdiğiniz açık rızanıza (KVKK m.5/1) dayanılarak,</li>
+        <li>Sipariş talepleri bakımından ayrıca bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması (KVKK m.5/2-c) hukuki sebebine dayanılarak</li>
+      </ul>
+      <p>işlenmektedir.</p>
+    </section>
+
+    <section>
+      <h2>5. Kişisel Verilerin Aktarılması</h2>
+      <p>Kişisel verileriniz;</p>
+      <ul>
+        <li>Sipariş ve stok bildirimi taleplerinizin yürütülmesi amacıyla kullandığımız otomasyon/entegrasyon hizmet sağlayıcısına (veri işleyen sıfatıyla),</li>
+        <li>Web sitesinin barındırılmasını sağlayan Vercel Inc.'e (barındırma hizmeti kapsamında, teknik erişim kayıtları bağlamında),</li>
+        <li>Yasal bir yükümlülüğün yerine getirilmesi gerektiği hallerde yetkili kamu kurum ve kuruluşlarına</li>
+      </ul>
+      <p>KVKK'nın 8. ve 9. maddelerinde öngörülen şartlara uygun olarak aktarılabilir.</p>
+      <p class="note">Not: Sipariş ve stok bildirimi taleplerinin işlenmesinde kullanılan otomasyon/entegrasyon hizmet sağlayıcısı şu an netleşmemiştir; sağlayıcı belirlendiğinde bu metin güncellenecektir.</p>
+    </section>
+
+    <section>
+      <h2>6. Yurt Dışına Aktarım</h2>
+      <p>Yukarıda belirtilen hizmet sağlayıcılarının (barındırma ve otomasyon/entegrasyon hizmeti) sunucuları yurt dışında bulunabilir. Bu durumda kişisel verileriniz, KVKK'nın 9. maddesinde öngörülen şartlara (yeterli korumanın bulunduğu ülkeler, Kurul tarafından onaylanan taahhütnameler veya diğer uygun güvenceler) uygun şekilde yurt dışına aktarılabilir.</p>
+    </section>
+
+    <section>
+      <h2>7. Kişisel Verilerin Saklama Süresi</h2>
+      <p>Kişisel verileriniz, işlenme amacının gerektirdiği süre boyunca, ilgili mevzuatta öngörülen zamanaşımı ve saklama süreleri saklı kalmak kaydıyla, talebinizin sonuçlanmasından itibaren en fazla 2 (iki) yıl süreyle saklanır. Bu sürenin sonunda verileriniz silinir, yok edilir veya anonim hale getirilir.</p>
+    </section>
+
+    <section>
+      <h2>8. Çerezler ve Benzeri Teknolojiler</h2>
+      <p>AtölyeKart web sitesi şu an itibarıyla çerez (cookie), analitik izleme veya reklam amaçlı herhangi bir üçüncü taraf takip teknolojisi kullanmamaktadır. Bu durumda bir değişiklik olması hâlinde bu metin güncellenecektir.</p>
+    </section>
+
+    <section>
+      <h2>9. KVKK Madde 11 Kapsamındaki Haklarınız</h2>
+      <p>KVKK'nın 11. maddesi uyarınca veri sorumlusuna başvurarak;</p>
+      <ul>
+        <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+        <li>İşlenmişse buna ilişkin bilgi talep etme,</li>
+        <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+        <li>Yurt içinde/yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+        <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme,</li>
+        <li>KVKK'nın 7. maddesindeki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+        <li>Düzeltme, silme ve yok etme işlemlerinin, verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+        <li>İşlenen verilerin münhasıran otomatik sistemlerle analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+        <li>Kanuna aykırı işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+      </ul>
+      <p>haklarına sahipsiniz.</p>
+    </section>
+
+    <section>
+      <h2>10. Başvuru Yöntemi</h2>
+      <p>Yukarıdaki haklarınızı kullanmak için taleplerinizi <a href="mailto:mehmet@atolyekart.com">mehmet@atolyekart.com</a> adresine e-posta yoluyla iletebilirsiniz. Başvurunuz, KVKK'da öngörülen süre içinde (en geç 30 gün içinde) yanıtlanır.</p>
+    </section>
+
+    <section>
+      <h2>11. Değişiklikler</h2>
+      <p>Bu aydınlatma metni, yasal düzenlemelerdeki değişiklikler veya veri işleme faaliyetlerimizdeki güncellemeler doğrultusunda revize edilebilir. Güncel metin her zaman bu sayfada yayımlanır.</p>
+    </section>
+
+    <!-- Relative path, not "/" — like AtolyeCard.html, this file can be
+         opened standalone (file:// or a non-root deployment path). -->
+    <a class="doc__back" href="./index.html">El yapımı ürün kataloğuna dön</a>
+  </main>
+</body>
+</html>
