@@ -181,6 +181,34 @@
   to { opacity: 1; transform: none; }
 }
 
+.order-field--checkbox {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.order-field--checkbox input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--terracotta, #c1613c);
+}
+
+.order-field--checkbox span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted, #6b5a4c);
+}
+
+.order-field--checkbox a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong, #ddcdb8);
+}
+.order-field--checkbox a:hover { text-decoration-color: currentColor; }
+
 @media (prefers-reduced-motion: reduce) {
   .order-backdrop, .order-modal { animation: none; }
   .card__order:hover { transform: none; }

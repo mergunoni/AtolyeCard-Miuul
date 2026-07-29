@@ -27,7 +27,7 @@ function normalizePhone(raw) {
   return null;
 }
 
-function validate({ name, phone }) {
+function validate({ name, phone, consent }) {
   const errors = {};
   const trimmedName = name.trim();
 
@@ -39,11 +39,14 @@ function validate({ name, phone }) {
   else if (!normalizePhone(phone))
     errors.phone = "Numarayı 10 haneli girin, örneğin 555 123 45 67.";
 
+  if (!consent)
+    errors.consent = "Devam etmek için aydınlatma metnini okuyup onaylamalısınız.";
+
   return errors;
 }
 
 export default function OrderModal({ product, onClose }) {
-  const [values, setValues] = useState({ name: "", phone: "" });
+  const [values, setValues] = useState({ name: "", phone: "", consent: false });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
   const [errorMessage, setErrorMessage] = useState("");
@@ -69,6 +72,11 @@ export default function OrderModal({ product, onClose }) {
   const handleChange = (field) => (event) => {
     setValues((current) => ({ ...current, [field]: event.target.value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const handleConsentChange = (event) => {
+    setValues((current) => ({ ...current, consent: event.target.checked }));
+    setErrors((current) => ({ ...current, consent: undefined }));
   };
 
   const handleSubmit = async (event) => {
@@ -205,6 +213,26 @@ export default function OrderModal({ product, onClose }) {
                   <span className="order-field__error">{errors.phone}</span>
                 )}
               </label>
+
+              <label className="order-field order-field--checkbox">
+                <input
+                  type="checkbox"
+                  checked={values.consent}
+                  onChange={handleConsentChange}
+                  disabled={sending}
+                  aria-invalid={Boolean(errors.consent)}
+                />
+                <span>
+                  <a href="/gizlilik-politikasi.html" target="_blank" rel="noopener">
+                    Aydınlatma Metni
+                  </a>
+                  'ni okudum, kişisel verilerimin bu kapsamda işlenmesini
+                  kabul ediyorum.
+                </span>
+              </label>
+              {errors.consent && (
+                <span className="order-field__error">{errors.consent}</span>
+              )}
 
               {status === "error" && (
                 <p className="order-modal__alert" role="alert">
