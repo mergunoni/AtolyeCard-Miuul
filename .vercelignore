@@ -1,0 +1,5 @@
+# Full-resolution source photography (~72 MB) — never needed at build/deploy
+# time; public/images/products/ already has the optimized copies the app
+# actually serves. Mirrors the reasoning documented for assets-source/ in
+# .gitignore.
+assets-source/
