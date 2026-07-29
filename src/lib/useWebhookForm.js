@@ -49,6 +49,15 @@ export function useWebhookForm({
     []
   );
 
+  const handleCheckboxChange = useCallback(
+    (field) => (event) => {
+      const { checked } = event.target;
+      setValues((current) => ({ ...current, [field]: checked }));
+      setErrors((current) => ({ ...current, [field]: undefined }));
+    },
+    []
+  );
+
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
@@ -85,6 +94,7 @@ export function useWebhookForm({
     errorMessage,
     sending: status === "sending",
     handleChange,
+    handleCheckboxChange,
     handleSubmit,
   };
 }

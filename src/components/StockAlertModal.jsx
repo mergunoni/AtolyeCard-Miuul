@@ -17,7 +17,7 @@ const ERROR_MESSAGES = {
 /** Pragmatic check — the address is confirmed by the mail that follows. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validate({ name, email }) {
+function validate({ name, email, consent }) {
   const errors = {};
   const trimmedName = name.trim();
 
@@ -29,6 +29,9 @@ function validate({ name, email }) {
   if (!trimmedEmail) errors.email = "E-posta adresinizi yazın.";
   else if (!EMAIL_PATTERN.test(trimmedEmail))
     errors.email = "Geçerli bir e-posta yazın, örneğin ayse@ornek.com.";
+
+  if (!consent)
+    errors.consent = "Devam etmek için aydınlatma metnini okuyup onaylamalısınız.";
 
   return errors;
 }
@@ -77,9 +80,10 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
     errorMessage,
     sending,
     handleChange,
+    handleCheckboxChange,
     handleSubmit,
   } = useWebhookForm({
-    initialValues: { name: "", email: "" },
+    initialValues: { name: "", email: "", consent: false },
     validate,
     buildPayload,
     onSuccess: handleSuccess,
@@ -160,6 +164,26 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
                 <span className="fmodal-field__error">{errors.email}</span>
               )}
             </label>
+
+            <label className="fmodal-field fmodal-field--checkbox">
+              <input
+                type="checkbox"
+                checked={values.consent}
+                onChange={handleCheckboxChange("consent")}
+                disabled={sending}
+                aria-invalid={Boolean(errors.consent)}
+              />
+              <span>
+                <a href="/gizlilik-politikasi.html" target="_blank" rel="noopener">
+                  Aydınlatma Metni
+                </a>
+                'ni okudum, kişisel verilerimin bu kapsamda işlenmesini kabul
+                ediyorum.
+              </span>
+            </label>
+            {errors.consent && (
+              <span className="fmodal-field__error">{errors.consent}</span>
+            )}
 
             {status === "error" && (
               <p className="fmodal__alert" role="alert">

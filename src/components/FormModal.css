@@ -170,6 +170,34 @@
   to { opacity: 1; transform: none; }
 }
 
+.fmodal-field--checkbox {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.fmodal-field--checkbox input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--azure-deep, #245876);
+}
+
+.fmodal-field--checkbox span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted, #6b5a4c);
+}
+
+.fmodal-field--checkbox a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong, #ddcdb8);
+}
+.fmodal-field--checkbox a:hover { text-decoration-color: currentColor; }
+
 @media (prefers-reduced-motion: reduce) {
   .fmodal-backdrop, .fmodal { animation: none; }
 }
