@@ -32,3 +32,6 @@ yarn-error.log*
 assets-source/
 .vercel
 .env*
+
+# Isolated workspaces for subagent-driven plan execution.
+.worktrees/
