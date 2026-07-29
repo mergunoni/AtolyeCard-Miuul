@@ -30,3 +30,5 @@ yarn-error.log*
 # be pruned without a force-push. Use Git LFS or asset storage if these need
 # to be versioned.
 assets-source/
+.vercel
+.env*
