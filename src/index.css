@@ -591,3 +591,32 @@ body {
   * { transition: none !important; }
   .card:hover, .btn:hover { transform: none; }
 }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+.page__foot {
+  margin-top: var(--space-7, 56px);
+  padding-top: var(--space-5, 24px);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.page__foot-link {
+  font-size: var(--text-sm, 13px);
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.page__foot-link:hover {
+  color: var(--azure-dark);
+  text-decoration-color: currentColor;
+}
+.page__foot-link:focus-visible {
+  outline: 2px solid var(--azure-dark);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

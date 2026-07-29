@@ -39,6 +39,12 @@ export default function App() {
         />
       </main>
 
+      <footer className="page__foot">
+        <a className="page__foot-link" href="/gizlilik-politikasi.html">
+          Gizlilik Politikası ve KVKK Aydınlatma Metni
+        </a>
+      </footer>
+
       {notice && (
         <div className="toast" role="status" onClick={() => setNotice("")}>
           {notice}
