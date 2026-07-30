@@ -276,6 +276,68 @@
       color: var(--azure-dark);
     }
 
+    /* Embedded KVKK notice. The card is handed out as a single file, so the
+       text lives inside it rather than only behind a link that may not
+       resolve when the file travels alone. Collapsed by default to keep the
+       card compact. */
+    .notice {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--mist);
+      text-align: left;
+    }
+
+    .notice > summary {
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--azure-dark);
+      cursor: pointer;
+      list-style: none;
+    }
+    /* Hide the native disclosure triangle in both engines so ::before is the
+       only marker and the two platforms look alike. */
+    .notice > summary::-webkit-details-marker { display: none; }
+    .notice > summary::before { content: "\25B8\00A0"; font-size: 11px; }
+    .notice[open] > summary::before { content: "\25BE\00A0"; }
+    .notice > summary:focus-visible {
+      outline: 2px solid var(--azure-dark);
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+
+    .notice__body { padding: 0 12px 14px; }
+
+    .notice__body h3 {
+      margin-top: 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+    }
+
+    .notice__body p {
+      margin-top: 4px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .notice__body a {
+      color: var(--azure-dark);
+      font-weight: 600;
+      text-decoration-color: var(--silver-dark);
+      text-underline-offset: 3px;
+    }
+    .notice__body a:hover { text-decoration-color: currentColor; }
+    .notice__body a:focus-visible {
+      outline: 2px solid var(--azure-dark);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; }
       .row:hover, .social:hover, .save-btn:hover { transform: none; }
@@ -349,6 +411,42 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.16c-.24.68-1.4 1.31-1.94 1.36-.5.05-.97.24-3.26-.68-2.76-1.09-4.5-3.92-4.64-4.11-.14-.19-1.11-1.48-1.11-2.82s.7-2 .95-2.28c.24-.27.53-.34.71-.34.18 0 .35 0 .5.01.16 0 .38-.06.6.46.24.55.79 1.9.86 2.04.07.14.11.3.02.48-.09.19-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.27.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.21 1.37.27.14.43.11.59-.07.16-.19.68-.79.86-1.06.18-.27.36-.23.6-.14.24.09 1.55.73 1.81.86.27.14.44.2.5.31.07.12.07.66-.17 1.34z"/></svg>
         </a>
       </div>
+
+      <details class="notice">
+        <summary>Aydınlatma Metnini Oku</summary>
+        <div class="notice__body">
+          <h3>Veri Sorumlusu</h3>
+          <p>Mehmet Ergün (AtölyeKart) · Kadıköy, İstanbul ·
+            <a href="mailto:mehmet@atolyekart.com">mehmet@atolyekart.com</a> ·
+            <a href="tel:+905357650668">+90 535 765 06 68</a></p>
+
+          <h3>İşlenen Veri</h3>
+          <p>Bu kartvizit sizden kişisel veri toplamaz. “Rehbere Kaydet”, kart
+            sahibinin ad, unvan, telefon, e-posta ve adres bilgilerini vCard
+            dosyası olarak sizin cihazınıza indirir.</p>
+
+          <h3>Nerede İşlenir</h3>
+          <p>İşlem tamamen tarayıcınızda gerçekleşir. AtölyeKart'a hiçbir veri
+            gönderilmez, sunucuda kayıt tutulmaz, çerez kullanılmaz.</p>
+
+          <h3>Amaç ve Hukuki Sebep</h3>
+          <p>İletişim kurulabilmesi. İşlem, işaretlediğiniz onay kutusuyla
+            verdiğiniz açık rızaya (KVKK m.5/1) dayanır.</p>
+
+          <h3>Sizden Beklenen</h3>
+          <p>Cihazınıza kaydettiğiniz iletişim bilgilerini yalnızca iletişim
+            amacıyla kullanmanız, üçüncü kişilerle paylaşmamanız.</p>
+
+          <h3>Haklarınız</h3>
+          <p>KVKK m.11 kapsamındaki haklarınızı kullanmak için
+            <a href="mailto:mehmet@atolyekart.com">mehmet@atolyekart.com</a>
+            adresine yazabilirsiniz; başvurunuz en geç 30 gün içinde
+            yanıtlanır.</p>
+
+          <p><a href="./gizlilik-politikasi.html">Aydınlatma metninin tamamını
+            okuyun</a></p>
+        </div>
+      </details>
 
       <button class="save-btn" id="saveVcard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
