@@ -23,6 +23,7 @@
       --muted: #54626f;        /* 6.1:1 on --card-bg */
       --card-bg: #fbfcfd;
       --line: #dfe6ec;
+      --danger: #b3261e;       /* 6.36:1 on --card-bg */
 
       --metal: linear-gradient(
         135deg,
@@ -276,6 +277,46 @@
       color: var(--azure-dark);
     }
 
+    /* Consent gate for the vCard download. Label wraps the input, so no
+       for/id pairing is needed; the error paragraph sits outside the label
+       and is wired up with aria-describedby only while it is visible. */
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 22px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .consent input[type="checkbox"] {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      accent-color: var(--azure-deep);
+      cursor: pointer;
+    }
+    .consent input[type="checkbox"]:focus-visible {
+      outline: 2px solid var(--azure-dark);
+      outline-offset: 2px;
+    }
+
+    .consent__text {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .consent__error {
+      margin-top: 8px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      font-weight: 600;
+      color: var(--danger);
+      text-align: left;
+    }
+
     /* Embedded KVKK notice. The card is handed out as a single file, so the
        text lives inside it rather than only behind a link that may not
        resolve when the file travels alone. Collapsed by default to keep the
@@ -412,6 +453,15 @@
         </a>
       </div>
 
+      <label class="consent">
+        <input type="checkbox" id="consentCheck" />
+        <span class="consent__text">Aydınlatma metnini okudum; iletişim
+          bilgilerinin cihazıma kaydedilmesini kabul ediyorum.</span>
+      </label>
+
+      <p class="consent__error" id="consentError" role="alert" hidden>Devam
+        etmek için aydınlatma metnini okuyup onaylamalısınız.</p>
+
       <details class="notice">
         <summary>Aydınlatma Metnini Oku</summary>
         <div class="notice__body">
@@ -460,8 +510,35 @@
   </main>
 
   <script>
+    // KVKK consent gate. The vCard download is this card's only action, so
+    // the checkbox guards it directly. Consent lives in the DOM only —
+    // nothing is persisted, which is exactly what the embedded notice
+    // promises. Error copy is kept identical to CONSENT_ERROR in
+    // src/lib/consent.js; this file stays dependency-free, so the string is
+    // duplicated by hand and must be updated in both places.
+    const consentCheck = document.getElementById('consentCheck');
+    const consentError = document.getElementById('consentError');
+
+    function clearConsentError() {
+      consentError.hidden = true;
+      consentCheck.removeAttribute('aria-invalid');
+      consentCheck.removeAttribute('aria-describedby');
+    }
+
+    consentCheck.addEventListener('change', function () {
+      if (consentCheck.checked) clearConsentError();
+    });
+
     // vCard download — contact saves directly to the phone/address book
     document.getElementById('saveVcard').addEventListener('click', function () {
+      if (!consentCheck.checked) {
+        consentError.hidden = false;
+        consentCheck.setAttribute('aria-invalid', 'true');
+        consentCheck.setAttribute('aria-describedby', 'consentError');
+        consentCheck.focus();
+        return;
+      }
+
       const vcard = [
         'BEGIN:VCARD',
         'VERSION:3.0',
