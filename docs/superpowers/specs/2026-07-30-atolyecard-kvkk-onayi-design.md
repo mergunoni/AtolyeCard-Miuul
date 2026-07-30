@@ -56,7 +56,7 @@ Hata metni `src/lib/consent.js` içindeki `CONSENT_ERROR` ile **birebir aynı** 
 
 ### 2. `AtolyeCard.html` — gömülü aydınlatma metni
 
-`<details>` içinde, `<summary>` başlığı "Aydınlatma Metnini Oku". İçerik `<dl>` değil, `<h3>` + `<p>` çiftleriyle yazılır (kart dar, tanım listesi hizalaması sıkışır). Altı madde:
+`<details>` içinde, `<summary>` başlığı "Aydınlatma Metnini Oku". İçerik `<dl>` değil, `<h2>` + `<p>` çiftleriyle yazılır (kart dar, tanım listesi hizalaması sıkışır); kart başlığı `<h1>` olduğundan `<h3>` seviye atlayacaktı. Altı madde:
 
 1. **Veri sorumlusu** — Mehmet Ergün (AtölyeKart), Kadıköy/İstanbul, `mehmet@atolyekart.com`, `+90 535 765 06 68`.
 2. **İşlenen veri** — Bu kartvizit sizden veri toplamaz. "Rehbere Kaydet", kart *sahibinin* ad, unvan, telefon, e-posta ve adres bilgilerini vCard dosyası olarak sizin cihazınıza indirir.
