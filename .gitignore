@@ -35,3 +35,6 @@ assets-source/
 
 # Isolated workspaces for subagent-driven plan execution.
 .worktrees/
+
+# Superpowers SDD scratch — plan ledger ve inceleme paketleri
+.superpowers/
