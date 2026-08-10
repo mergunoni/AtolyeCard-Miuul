@@ -32,7 +32,7 @@ src/
     ProductImage.jsx           Görsel + yüklenemezse placeholder
     PageQrCode.jsx             Sayfanın kendi adresinin QR'ı
     FormModal.jsx / .css       Paylaşılan modal kabuğu (portal, Escape, odak)
-    OrderModal.jsx / .css      Sipariş formu (ad + telefon)
+    OrderModal.jsx / .css      Sipariş formu (ad + telefon + e-posta + adet + adres + not)
     StockAlertModal.jsx        Stok bildirimi formu (ad + e-posta)
   lib/
     webhook.js                 postEvent + WebhookError + buildMeta
@@ -130,7 +130,16 @@ Yeni fotoğraf eklerken: 900px'e indirin, slug adıyla kaydedin, orijinali `asse
 
 ## Webhook Veri Sözleşmesi
 
-Her olay **aynı uca** POST edilir; ayrımı `event` alanı yapar. Taşıma katmanı `src/lib/webhook.js`.
+**İki ayrı uç var, karıştırmayın.** `stock_alert` genel zarf sözleşmesini kullanıp
+`VITE_WEBHOOK_URL`'e gider; `order_request` düz (flat) bir şema ile ayrı, adanmış bir
+n8n workflow'una (`VITE_ORDER_WEBHOOK_URL`) gider. Taşıma katmanı ikisinde de
+`src/lib/webhook.js`'teki `postEvent(payload, url)` — `url` verilmezse `VITE_WEBHOOK_URL`'e
+düşer, `OrderModal` kendi URL'ini açıkça geçer.
+
+Cevap gövdesi hiçbir olayda okunmaz; yalnızca HTTP durumu dikkate alınır. 10 sn'de
+`AbortController` ile iptal.
+
+### `stock_alert` zarf şeması
 
 ```
 POST  import.meta.env.VITE_WEBHOOK_URL
@@ -141,27 +150,46 @@ Payload tam olarak şu üst seviye anahtarları içerir — **fazlası eklenmez*
 
 - `sentAt`: ISO 8601, **UTC** (`new Date().toISOString()`).
 - `meta`: `{ source: "web", locale: "tr-TR", userAgent }`. `referrer` boşsa anahtar yazılmaz.
-- Cevap gövdesi okunmaz; yalnızca HTTP durumu dikkate alınır. 10 sn'de `AbortController` ile iptal.
 
 ### `order_request` — Sipariş Ver
 
+**Zarf şemasını kullanmaz.** n8n'deki "▶️ Sipariş Ver" workflow'u (webhook path
+`siparis-ver`) bu alanları doğrudan `$json.body.*` olarak okur; `event`/`sentAt`/`meta`
+zarfı yoktur, `product` bir nesne değil düz bir isim string'idir.
+
+```
+POST  import.meta.env.VITE_ORDER_WEBHOOK_URL   (n8n: .../webhook/siparis-ver)
+Content-Type: application/json
+```
+
 ```json
 {
-  "event": "order_request",
-  "sentAt": "2026-07-27T15:22:08.940Z",
-  "product": { "id": "prd-001", "slug": "toprak-seramik-kupa",
-               "name": "Toprak Seramik Kupa", "price": 480, "currency": "TRY" },
-  "order":   { "name": "Ayşe Demir", "phone": "+905321112233" },
-  "meta":    { "source": "web", "locale": "tr-TR", "userAgent": "…" }
+  "orderId": "AK-M1X2Y3-7QF",
+  "customerName": "Ayşe Demir",
+  "email": "ayse@ornek.com",
+  "product": "Toprak Seramik Kupa",
+  "quantity": 1,
+  "phone": "+905321112233",
+  "address": "Çankaya, Ankara",
+  "note": "Hediye paketi"
 }
 ```
 
 | Alan | Zorunlu | Kural |
 |---|---|---|
-| `product` | ✅ | Ürünün tamamı değil, sadece bu beş alan |
-| `product.price` | ✅ | Sipariş anındaki fiyat |
-| `order.name` | ✅ | 2–80 karakter, trim'lenmiş |
-| `order.phone` | ✅ | E.164'e çevrilmiş. Kullanıcı 10 hane girer, istemci normalleştirir |
+| `orderId` | ✅ | İstemcide üretilir (`AK-<zaman36>-<rastgele3>`), Google Sheets satır anahtarı ve teşekkür mailindeki referans |
+| `customerName` | ✅ | 2–80 karakter, trim'lenmiş |
+| `email` | ✅ | Geçerli e-posta; trim'lenir ve küçük harfe çevrilir. AI'ın ürettiği teşekkür maili buraya gider |
+| `product` | ✅ | Sadece ürün adı (string) — id/slug/fiyat/currency **gönderilmez** |
+| `quantity` | ✅ | Tam sayı, 1–20 |
+| `phone` | ✅ | E.164'e çevrilmiş. Kullanıcı 10 hane girer, istemci normalleştirir |
+| `address` | opsiyonel | Boş string kabul edilir (atölyeden teslim alma senaryosu) |
+| `note` | opsiyonel | Boş string kabul edilir |
+
+Workflow akışı: webhook → Google Sheets'e satır ekle (`Siparişi Kaydet`) → AI ile
+kişiselleştirilmiş teşekkür maili üret (`Teşekkür Maili Üret`) → Gmail'den gönder
+(`Teşekkür Maili Gönder`). Sheets'teki her sütun `$json.body.<alan>`'a birebir bağlı —
+alan adı değişirse hem burası hem n8n node'undaki mapping güncellenmeli.
 
 ### `stock_alert` — Stok Bildirimi İste
 
@@ -191,7 +219,7 @@ Yalnızca `out_of_stock` ürünlerde. `order` yerine **`alert`** bloğu taşır.
 | 4xx / 5xx / ağ hatası | Formu koru, Türkçe hata mesajı göster, tekrar denemeye izin ver |
 | 10 sn timeout | `AbortController` ile iptal → hata durumu |
 
-Hata kodları → Türkçe metin eşlemesi `lib/useWebhookForm.js` içindeki `DEFAULT_ERROR_MESSAGES`; akışa özel metinler `messages` ile override edilir.
+`stock_alert` için hata kodları → Türkçe metin eşlemesi `lib/useWebhookForm.js` içindeki `DEFAULT_ERROR_MESSAGES`; akışa özel metinler `messages` ile override edilir. `order_request` bu hook'u **kullanmaz** — `OrderModal.jsx` kendi gönderim durum makinesini ve `ERROR_MESSAGES` tablosunu elde tutar (tarihsel neden: form iki olay ortak alt yapıya taşınmadan önce yazıldı).
 
 ### Uygulanmamış olaylar
 
@@ -209,12 +237,14 @@ Katalog ve kartvizit WCAG AA hedefler; değişiklik yaparken bozmayın.
 ## Sık Yapılan Hatalar
 
 - **`src/data/products.js`'i bileşen içinden import etmek** → veri prop'la geçer.
-- **Tüm ürün nesnesini webhook'a göndermek** → sözleşme beş alanla sınırlı.
-- **Zarfa yeni üst seviye anahtar eklemek** (`formType` gibi) → ayrım `event` ile yapılır.
+- **`stock_alert`'te tüm ürün nesnesini göndermek** → sözleşme beş alanla sınırlı (`id, slug, name, price, currency`).
+- **`order_request`'te `product`'ı nesne olarak göndermek** → n8n workflow'u sadece ürün adını (string) bekler; nesne gönderirse Sheets satırı ve mail metni bozulur.
+- **`stock_alert` zarfına yeni üst seviye anahtar eklemek** (`formType` gibi) → ayrım `event` ile yapılır. `order_request` zaten zarf kullanmıyor, bu kural ona uygulanmaz.
+- **`order_request`'i `VITE_WEBHOOK_URL`'e göndermek** → o uç `stock_alert` için; sipariş `VITE_ORDER_WEBHOOK_URL`'e (n8n `siparis-ver` webhook'u) gider.
 - **`price`'ı `"480 TL"` gibi string yazmak** → sıralama/filtreleme kırılır.
 - **Stoku `inStock: true/false` yapmak** → `low_stock` ve stok bildirimi akışı kaybolur.
 - **Tükenen ürünün butonunu baştan `disabled` bırakmak** → talep toplama fırsatı kaçar. Yalnızca **gönderim sonrası** pasifleşir.
 - **`AtolyeCard.html`'i parçalara bölmek veya `index.css`'e bağlamak** → tek başına taşınabilirliği gider.
 - **Katalog paletini değiştirip kartviziti unutmak** → iki dosya elle senkron tutulur.
-- **Webhook URL'ini koda gömmek** → `.env.local` içinde `VITE_WEBHOOK_URL`, `.env.example`'a placeholder.
+- **Webhook URL'lerini koda gömmek** → `.env.local` içinde `VITE_WEBHOOK_URL` (stock_alert) ve `VITE_ORDER_WEBHOOK_URL` (order_request), `.env.example`'a placeholder.
 - **Tam çözünürlüklü fotoğrafı `public/` altına koymak** → 8 MB'lık PNG'ler build'e girer; 900px JPEG üretin.

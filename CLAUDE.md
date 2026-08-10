@@ -112,7 +112,7 @@ vercel deploy --prod  # production
 
 ## Bilinen Durum / Açık Noktalar
 
-- `.env.local` içinde şu anda `VITE_WEBHOOK_URL` **tanımlı değil** (sadece `VERCEL_OIDC_TOKEN` var) — yerelde sipariş/stok bildirimi formları `missing_url` hatası verir. Vercel'de tanımlı olup olmadığı ayrıca doğrulanmalı.
+- `.env.local` içinde `VITE_WEBHOOK_URL` (stok bildirimi ucu) **hâlâ tanımlı değil** — yerelde stok bildirimi formu `missing_url` hatası verir. `VITE_ORDER_WEBHOOK_URL` (sipariş ucu, n8n `siparis-ver` workflow'u) tanımlı. Vercel prod ortamında ikisinin de tanımlı olduğu doğrulanmalı.
 - `src/components/ProductGrid.jsx` ölü koddur, silinmeyi bekliyor.
 - Kartvizitte alan adı henüz yok; "Web" satırı ve vCard `URL:` alanı bilerek boş bırakılmış (`atolyekart.com` yayına girince eklenecek).
 - `AtolyeCard.html`'de iletişim bilgisi (telefon/e-posta) gerçek veri içeriyorsa dosya git'te izlendiği için repo geçmişine kalıcı işlenir — düzenlemeden önce repo görünürlüğünü teyit edin.

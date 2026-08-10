@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { buildMeta, postEvent, WebhookError } from "../lib/webhook.js";
+import { postEvent, WebhookError } from "../lib/webhook.js";
 import { formatPrice } from "../lib/format.js";
 import { CONSENT_ERROR, PRIVACY_NOTICE_URL } from "../lib/consent.js";
 import "./OrderModal.css";
@@ -19,6 +19,9 @@ const ERROR_MESSAGES = {
     "Siparişiniz şu anda alınamadı. Lütfen birazdan tekrar deneyin.",
 };
 
+/** Pragmatic check — the address is confirmed by the thank-you mail that follows. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 /** Turkish numbers are 10 digits after the country code. Returns E.164 or null. */
 function normalizePhone(raw) {
   const digits = raw.replace(/\D/g, "");
@@ -28,7 +31,15 @@ function normalizePhone(raw) {
   return null;
 }
 
-function validate({ name, phone, consent }) {
+/** Short, human-readable order id — shown to the shopper and used as the
+ * Google Sheets row key by the "Sipariş Ver" n8n workflow. */
+function generateOrderId() {
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
+  return `AK-${stamp}-${rand}`;
+}
+
+function validate({ name, phone, email, quantity, consent }) {
   const errors = {};
   const trimmedName = name.trim();
 
@@ -40,16 +51,36 @@ function validate({ name, phone, consent }) {
   else if (!normalizePhone(phone))
     errors.phone = "Numarayı 10 haneli girin, örneğin 555 123 45 67.";
 
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail) errors.email = "E-posta adresinizi yazın.";
+  else if (!EMAIL_PATTERN.test(trimmedEmail))
+    errors.email = "Geçerli bir e-posta yazın, örneğin ayse@ornek.com.";
+
+  const quantityNumber = Number(quantity);
+  if (!Number.isInteger(quantityNumber) || quantityNumber < 1)
+    errors.quantity = "Adet en az 1 olmalı.";
+  else if (quantityNumber > 20)
+    errors.quantity = "20'den fazla adet için doğrudan iletişime geçin.";
+
   if (!consent) errors.consent = CONSENT_ERROR;
 
   return errors;
 }
 
 export default function OrderModal({ product, onClose }) {
-  const [values, setValues] = useState({ name: "", phone: "", consent: false });
+  const [values, setValues] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    quantity: "1",
+    address: "",
+    note: "",
+    consent: false,
+  });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
   const [errorMessage, setErrorMessage] = useState("");
+  const [orderId, setOrderId] = useState("");
 
   const firstFieldRef = useRef(null);
   const closeTimerRef = useRef(null);
@@ -91,25 +122,27 @@ export default function OrderModal({ product, onClose }) {
     setStatus("sending");
     setErrorMessage("");
 
-    try {
-      await postEvent({
-        event: "order_request",
-        sentAt: new Date().toISOString(),
-        product: {
-          id: product.id,
-          slug: product.slug,
-          name: product.name,
-          price: product.price,
-          currency: product.currency,
-        },
-        // consent is a client-side gate only — never goes on the wire
-        order: {
-          name: values.name.trim(),
-          phone: normalizePhone(values.phone),
-        },
-        meta: buildMeta(),
-      });
+    const newOrderId = generateOrderId();
 
+    try {
+      // consent is a client-side gate only — never goes on the wire.
+      // Flat shape, no `event` field: the "Sipariş Ver" n8n workflow reads
+      // these keys directly off the webhook body (see SKILL.md).
+      await postEvent(
+        {
+          orderId: newOrderId,
+          customerName: values.name.trim(),
+          email: values.email.trim().toLowerCase(),
+          product: product.name,
+          quantity: Number(values.quantity),
+          phone: normalizePhone(values.phone),
+          address: values.address.trim(),
+          note: values.note.trim(),
+        },
+        import.meta.env.VITE_ORDER_WEBHOOK_URL
+      );
+
+      setOrderId(newOrderId);
       setStatus("success");
       closeTimerRef.current = setTimeout(onClose, CLOSE_DELAY_MS);
     } catch (error) {
@@ -153,8 +186,9 @@ export default function OrderModal({ product, onClose }) {
             </span>
             <h2 id="order-modal-title">Siparişiniz alındı</h2>
             <p>
-              {product.name} için talebiniz bize ulaştı. En kısa sürede
-              telefonla size dönüş yapacağız.
+              {product.name} için talebiniz bize ulaştı. Sipariş numaranız{" "}
+              <strong>{orderId}</strong>. Onay e-postası birazdan gelecek,
+              gerekirse sizi telefonla da arayacağız.
             </p>
           </div>
         ) : (
@@ -163,7 +197,8 @@ export default function OrderModal({ product, onClose }) {
               Sipariş Ver
             </h2>
             <p className="order-modal__lead">
-              Adınızı ve telefonunuzu bırakın, siparişi birlikte netleştirelim.
+              Bilgilerinizi bırakın, siparişi birlikte netleştirelim. Onay
+              e-postası birazdan e-posta adresinize gelecek.
             </p>
 
             <form className="order-modal__form" onSubmit={handleSubmit} noValidate>
@@ -213,6 +248,72 @@ export default function OrderModal({ product, onClose }) {
                 {errors.phone && (
                   <span className="order-field__error">{errors.phone}</span>
                 )}
+              </label>
+
+              <label className="order-field">
+                <span className="order-field__label">E-posta</span>
+                <input
+                  type="email"
+                  className="order-field__input"
+                  value={values.email}
+                  onChange={handleChange("email")}
+                  placeholder="ayse@ornek.com"
+                  autoComplete="email"
+                  inputMode="email"
+                  disabled={sending}
+                  aria-invalid={Boolean(errors.email)}
+                />
+                {errors.email && (
+                  <span className="order-field__error">{errors.email}</span>
+                )}
+              </label>
+
+              <label className="order-field">
+                <span className="order-field__label">Adet</span>
+                <input
+                  type="number"
+                  className="order-field__input"
+                  value={values.quantity}
+                  onChange={handleChange("quantity")}
+                  min={1}
+                  max={20}
+                  step={1}
+                  inputMode="numeric"
+                  disabled={sending}
+                  aria-invalid={Boolean(errors.quantity)}
+                />
+                {errors.quantity && (
+                  <span className="order-field__error">{errors.quantity}</span>
+                )}
+              </label>
+
+              <label className="order-field">
+                <span className="order-field__label">
+                  Adres <span className="order-field__optional">(opsiyonel)</span>
+                </span>
+                <input
+                  type="text"
+                  className="order-field__input"
+                  value={values.address}
+                  onChange={handleChange("address")}
+                  placeholder="Teslimat adresi veya atölyeden teslim alacağım"
+                  autoComplete="street-address"
+                  disabled={sending}
+                />
+              </label>
+
+              <label className="order-field">
+                <span className="order-field__label">
+                  Not <span className="order-field__optional">(opsiyonel)</span>
+                </span>
+                <textarea
+                  className="order-field__input order-field__input--textarea"
+                  value={values.note}
+                  onChange={handleChange("note")}
+                  placeholder="Hediye paketi, renk tercihi vb."
+                  rows={2}
+                  disabled={sending}
+                />
               </label>
 
               <label className="order-field order-field--checkbox">

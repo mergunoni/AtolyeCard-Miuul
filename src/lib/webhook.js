@@ -28,9 +28,12 @@ export function buildMeta() {
 /**
  * POSTs a payload and resolves on 2xx. The response body is never read, so a
  * change of webhook provider needs no code change here.
+ *
+ * @param url  Target endpoint. Defaults to VITE_WEBHOOK_URL (stock_alert);
+ *             order_request passes VITE_ORDER_WEBHOOK_URL explicitly since
+ *             it POSTs to a dedicated workflow with its own payload shape.
  */
-export async function postEvent(payload) {
-  const url = import.meta.env.VITE_WEBHOOK_URL;
+export async function postEvent(payload, url = import.meta.env.VITE_WEBHOOK_URL) {
   if (!url) throw new WebhookError("missing_url");
 
   const controller = new AbortController();
