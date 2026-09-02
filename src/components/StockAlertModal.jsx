@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import FormModal from "./FormModal.jsx";
-import { buildMeta } from "../lib/webhook.js";
+import { postForm } from "../lib/webhook.js";
 import { useWebhookForm } from "../lib/useWebhookForm.js";
 import { formatPrice } from "../lib/format.js";
 import { CONSENT_ERROR, PRIVACY_NOTICE_URL } from "../lib/consent.js";
@@ -50,21 +50,12 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
 
   const buildPayload = useCallback(
     // consent is a client-side gate only — never goes on the wire
+    // Flat shape, sent as multipart/form-data: the "Stok Bildirimi İste" n8n
+    // Form Trigger workflow reads these field names directly (see SKILL.md).
     ({ name, email }) => ({
-      event: "stock_alert",
-      sentAt: new Date().toISOString(),
-      product: {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        currency: product.currency,
-      },
-      alert: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-      },
-      meta: buildMeta(),
+      customer_name: name.trim(),
+      customer_email: email.trim().toLowerCase(),
+      product: product.name,
     }),
     [product]
   );
@@ -89,6 +80,7 @@ export default function StockAlertModal({ product, onSaved, onClose }) {
     buildPayload,
     onSuccess: handleSuccess,
     messages: ERROR_MESSAGES,
+    transport: postForm,
   });
 
   return (

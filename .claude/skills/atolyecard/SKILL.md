@@ -35,7 +35,7 @@ src/
     OrderModal.jsx / .css      Sipariş formu (ad + telefon + e-posta + adet + adres + not)
     StockAlertModal.jsx        Stok bildirimi formu (ad + e-posta)
   lib/
-    webhook.js                 postEvent + WebhookError + buildMeta
+    webhook.js                 postEvent (JSON) + postForm (multipart) + WebhookError
     useWebhookForm.js          Form yaşam döngüsü hook'u
     format.js                  formatPrice
   data/products.js             Katalog verisi
@@ -130,26 +130,22 @@ Yeni fotoğraf eklerken: 900px'e indirin, slug adıyla kaydedin, orijinali `asse
 
 ## Webhook Veri Sözleşmesi
 
-**İki ayrı uç var, karıştırmayın.** `stock_alert` genel zarf sözleşmesini kullanıp
-`VITE_WEBHOOK_URL`'e gider; `order_request` düz (flat) bir şema ile ayrı, adanmış bir
-n8n workflow'una (`VITE_ORDER_WEBHOOK_URL`) gider. Taşıma katmanı ikisinde de
-`src/lib/webhook.js`'teki `postEvent(payload, url)` — `url` verilmezse `VITE_WEBHOOK_URL`'e
-düşer, `OrderModal` kendi URL'ini açıkça geçer.
+**İki ayrı uç var, farklı içerik tipleriyle — karıştırmayın.** `order_request` düz
+(flat) bir JSON şemayla adanmış bir n8n workflow'una (`VITE_ORDER_WEBHOOK_URL`) gider.
+`stock_alert` da düz alanlar taşır ama **JSON değil, `multipart/form-data`** gönderir —
+hedefi bir n8n **Form Trigger** endpoint'i (`VITE_WEBHOOK_URL`) olduğu için; Form
+Trigger `application/json` gövdeyi reddeder (500 döner).
+
+Taşıma katmanı `src/lib/webhook.js`'te: `postEvent(payload, url)` JSON gönderir
+(varsayılan `url` `VITE_WEBHOOK_URL`; `OrderModal` kendi `VITE_ORDER_WEBHOOK_URL`'ini
+açıkça geçer), `postForm(fields, url)` `FormData` ile multipart gönderir. İkisi de
+aynı paylaşılan `postRequest` üzerinden gider — `missing_url`/`network`/`timeout`/
+`bad_status` hata kodları ortak. `useWebhookForm` varsayılan olarak `postEvent`
+kullanır; bir form farklı bir taşıma istiyorsa `transport` prop'uyla override eder
+(`StockAlertModal` → `postForm`).
 
 Cevap gövdesi hiçbir olayda okunmaz; yalnızca HTTP durumu dikkate alınır. 10 sn'de
 `AbortController` ile iptal.
-
-### `stock_alert` zarf şeması
-
-```
-POST  import.meta.env.VITE_WEBHOOK_URL
-Content-Type: application/json
-```
-
-Payload tam olarak şu üst seviye anahtarları içerir — **fazlası eklenmez**: `event`, `sentAt`, olay bloğu, `meta`.
-
-- `sentAt`: ISO 8601, **UTC** (`new Date().toISOString()`).
-- `meta`: `{ source: "web", locale: "tr-TR", userAgent }`. `referrer` boşsa anahtar yazılmaz.
 
 ### `order_request` — Sipariş Ver
 
@@ -193,23 +189,40 @@ alan adı değişirse hem burası hem n8n node'undaki mapping güncellenmeli.
 
 ### `stock_alert` — Stok Bildirimi İste
 
-Yalnızca `out_of_stock` ürünlerde. `order` yerine **`alert`** bloğu taşır.
+Yalnızca `out_of_stock` ürünlerde. n8n tarafındaki hedef bir **Form Trigger**
+workflow'u ("Stok Bildirimi İste", path `stok-bildirimi-iste`); zarf yoktur, `event`/
+`sentAt`/`meta` gönderilmez — sadece Form Trigger'ın alan adlarıyla birebir eşleşen
+düz alanlar.
 
-```json
-{
-  "event": "stock_alert",
-  "sentAt": "2026-07-27T15:54:37.167Z",
-  "product": { "id": "prd-004", "slug": "sirsiz-seramik-saksi",
-               "name": "Sırsız Seramik Saksı", "price": 620, "currency": "TRY" },
-  "alert":   { "name": "Ayşe Demir", "email": "ayse@ornek.com" },
-  "meta":    { "source": "web", "locale": "tr-TR", "userAgent": "…" }
-}
+```
+POST  import.meta.env.VITE_WEBHOOK_URL   (n8n: .../form/stok-bildirimi-iste)
+Content-Type: multipart/form-data
+```
+
+```
+customer_name:  Ayşe Demir
+customer_email: ayse@ornek.com
+product:        Sırsız Seramik Saksı
 ```
 
 | Alan | Zorunlu | Kural |
 |---|---|---|
-| `alert.name` | ✅ | 2–80 karakter, trim'lenmiş |
-| `alert.email` | ✅ | Geçerli e-posta; trim'lenir ve küçük harfe çevrilir |
+| `customer_name` | ✅ | 2–80 karakter, trim'lenmiş |
+| `customer_email` | ✅ | Geçerli e-posta; trim'lenir ve küçük harfe çevrilir |
+| `product` | ✅ | Sadece ürün adı (string) — id/slug/fiyat/currency **gönderilmez** |
+
+Workflow akışı: Form Trigger → `atolyekart_stock_requests` adlı n8n Data Table'a
+`status: "pending"` ile satır ekle (`Talebi Kaydet`). Ayrı bir Form Trigger daha var —
+**"Stok Geldi Bildirimi"** (path `stok-geldi`) — ama bu **atölye sahibi için**, siteye
+bağlı değil: sahibi stoğa gelen ürün adını o formdan girince, `product` alanı
+eşleşen ve `status: "pending"` olan tüm satırları bulur, her birine mail atar, sonra
+`status: "notified"` yapar. İki form da aynı n8n instance'ında
+(`ryazici.app.n8n.cloud`), `wzY4hN0b5ko02jKW`'den ayrı bir workflow'da yaşar.
+
+**Kırılgan nokta:** eşleşme `product` alanının **serbest metin** eşitliğiyle
+çalışıyor — müşterinin talep formuna girdiği (`ProductCard`'dan otomatik geçilen
+`product.name`) ile sahibin "Stok Geldi" formuna elle yazdığı ürün adı **birebir**
+aynı olmalı, yoksa bekleyen talep hiç bulunmaz ve mail gitmez.
 
 ### Cevap ve hata davranışı
 
@@ -237,10 +250,11 @@ Katalog ve kartvizit WCAG AA hedefler; değişiklik yaparken bozmayın.
 ## Sık Yapılan Hatalar
 
 - **`src/data/products.js`'i bileşen içinden import etmek** → veri prop'la geçer.
-- **`stock_alert`'te tüm ürün nesnesini göndermek** → sözleşme beş alanla sınırlı (`id, slug, name, price, currency`).
+- **`stock_alert`'te tüm ürün nesnesini göndermek** → Form Trigger sadece `product` adlı düz bir metin alanı bekler; nesne veya ek anahtar gönderirse alan eşleşmez.
 - **`order_request`'te `product`'ı nesne olarak göndermek** → n8n workflow'u sadece ürün adını (string) bekler; nesne gönderirse Sheets satırı ve mail metni bozulur.
-- **`stock_alert` zarfına yeni üst seviye anahtar eklemek** (`formType` gibi) → ayrım `event` ile yapılır. `order_request` zaten zarf kullanmıyor, bu kural ona uygulanmaz.
+- **`stock_alert`'i `postEvent` (JSON) ile göndermek** → hedef bir n8n Form Trigger, `application/json` gövdeyi 500 ile reddeder; `postForm` (multipart/form-data) kullanılmalı.
 - **`order_request`'i `VITE_WEBHOOK_URL`'e göndermek** → o uç `stock_alert` için; sipariş `VITE_ORDER_WEBHOOK_URL`'e (n8n `siparis-ver` webhook'u) gider.
+- **"Stok Geldi" formuna ürün adını katalogdakinden farklı yazmak** → eşleşme serbest metin üzerinden; yazım farkı bekleyen talebi bulamaz, mail gitmez.
 - **`price`'ı `"480 TL"` gibi string yazmak** → sıralama/filtreleme kırılır.
 - **Stoku `inStock: true/false` yapmak** → `low_stock` ve stok bildirimi akışı kaybolur.
 - **Tükenen ürünün butonunu baştan `disabled` bırakmak** → talep toplama fırsatı kaçar. Yalnızca **gönderim sonrası** pasifleşir.

@@ -23,6 +23,8 @@ export const DEFAULT_ERROR_MESSAGES = {
  * @param validate      (values) => { field: "Türkçe hata" }. Empty means valid.
  * @param onSuccess     Fired once, after a 2xx. Side effects belong here.
  * @param messages      Per-flow overrides for DEFAULT_ERROR_MESSAGES.
+ * @param transport     (payload) => Promise<boolean>. Defaults to the JSON
+ *                      postEvent; pass postForm for a multipart endpoint.
  */
 export function useWebhookForm({
   initialValues,
@@ -30,6 +32,7 @@ export function useWebhookForm({
   buildPayload,
   onSuccess,
   messages,
+  transport = postEvent,
 }) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
@@ -72,7 +75,7 @@ export function useWebhookForm({
       setErrorMessage("");
 
       try {
-        await postEvent(buildPayload(values));
+        await transport(buildPayload(values));
         if (!aliveRef.current) return;
         setStatus("success");
         onSuccess?.(values);
@@ -84,7 +87,7 @@ export function useWebhookForm({
         setStatus("error");
       }
     },
-    [values, validate, buildPayload, onSuccess, messages]
+    [values, validate, buildPayload, onSuccess, messages, transport]
   );
 
   return {
